@@ -8,7 +8,7 @@
 
 Персонажи: тело + лицо эмоции → один WebP с прозрачностью (как слои в игре).
 Фоны: постер JPEG и видео-петля H.264 под размер телефона на странице.
-Арт-пайплайн: кадр Midjourney и лица эмоций из Nano Banana — как есть, только уменьшены.
+Логотипы, фавиконы и превью ссылок собирает tools/build_brand.py.
 """
 
 import subprocess
@@ -60,10 +60,8 @@ def chars() -> None:
             img = img.resize((600, 1200), Image.LANCZOS)
             img.save(out / f"{cid}_{emo}.webp", "WEBP", quality=84, method=6)
 
-
 def ffmpeg(*args: str) -> None:
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *args], check=True)
-
 
 def backgrounds() -> None:
     out = OUT / "bg"
@@ -82,43 +80,6 @@ def backgrounds() -> None:
         )
 
 
-def pipeline() -> None:
-    out = OUT / "pipeline"
-    out.mkdir(parents=True, exist_ok=True)
-    frame = Image.open(CH1 / "src/_hero/frame.webp").convert("RGB")
-    frame.resize((500, 1000), Image.LANCZOS).save(out / "hero_frame.jpg", "JPEG", quality=82, optimize=True)
-    for emo in ["neutral", "amused", "skeptical", "surprised", "scared", "angry"]:
-        face = Image.open(CH1 / f"src/_hero/crops/{emo}.jpeg").convert("RGB")
-        w, h = face.size
-        face = face.crop((round(w * 0.27), round(h * 0.22), round(w * 0.73), round(h * 0.68)))
-        face.resize((360, 360), Image.LANCZOS).save(out / f"face_{emo}.jpg", "JPEG", quality=84, optimize=True)
-
-
-def og() -> None:
-    """Картинка для превью ссылки: детектор за спиной и пять героев."""
-    W, H = 1200, 630
-    img = Image.new("RGB", (W, H), (5, 10, 19))
-    cave = Image.open(CH1 / "bg/detector_cavern.jpg").convert("RGB")
-    cave = cave.resize((W, round(cave.height * W / cave.width)), Image.LANCZOS)
-    top = round(cave.height * 0.36)
-    img.paste(Image.blend(cave.crop((0, top, W, top + H)), img, 0.55))
-    row = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    lineup = ["hero_neutral", "elias_neutral", "adrian_neutral", "samira_amused", "viktor_smile"]
-    fig_h = 760
-    fig_w = fig_h // 2
-    step = (W - fig_w) // (len(lineup) - 1)
-    for i, name in enumerate(lineup):
-        f = Image.open(OUT / f"chars/{name}.webp").convert("RGBA").resize((fig_w, fig_h), Image.LANCZOS)
-        row.alpha_composite(f, (i * step, 70))
-    fade = Image.linear_gradient("L").resize((W, H)).point(lambda v: 255 if v < 150 else max(0, 255 - (v - 150) * 3))
-    row.putalpha(Image.composite(row.getchannel("A"), Image.new("L", (W, H), 0), fade))
-    img = img.convert("RGBA")
-    img.alpha_composite(row)
-    img.convert("RGB").save(OUT / "og.jpg", "JPEG", quality=84, optimize=True)
-
-
 if __name__ == "__main__":
     chars()
     backgrounds()
-    pipeline()
-    og()

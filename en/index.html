@@ -3,1469 +3,187 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Novella · development case study</title>
-<meta name="description" content="A mobile interactive story game on a custom engine: an Ink runtime ported to Dart, Flutter, Supabase, purchases in three app stores and an art pipeline built on neural networks. Preparing for commercial launch.">
+<title>Throne Studios — interactive story games</title>
+<meta name="description" content="Throne Studios makes mobile interactive story games. Our first game, StoryVeil, launches this winter on iOS and Android. Play the opening of the first story right on the site.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Novella — a mobile game on a custom engine">
-<meta property="og:description" content="Ink runtime ported to Dart, a Flutter client, a Supabase backend and an AI-assisted art pipeline. Play the opening scenes right on the page.">
+<meta property="og:site_name" content="Throne Studios">
+<meta property="og:title" content="Throne Studios — interactive story games">
+<meta property="og:description" content="The studio's first game, StoryVeil, launches this winter. Play the opening of Interference right in your browser.">
 <meta property="og:url" content="https://akshin.github.io/novella-game/en/">
 <meta property="og:image" content="https://akshin.github.io/novella-game/assets/og.jpg">
-<meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="alternate" hreflang="ru" href="https://akshin.github.io/novella-game/">
 <link rel="alternate" hreflang="en" href="https://akshin.github.io/novella-game/en/">
-<meta name="theme-color" content="#050a13">
+<meta name="theme-color" content="#06060a">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/brand/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/favicon-64.png">
+<link rel="apple-touch-icon" href="../assets/brand/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Unbounded:wght@300;400;500&display=swap">
-<style>
-/* Layout: the ASTERION control room. A playable screen up top; below, the page takes it apart
-   layer by layer: product, architecture, engine, client, server, art, tests, status. */
-:root {
-  color-scheme: dark;
-  --void: #050a13;      /* фон: темнота шахты детектора */
-  --hull: #0b1526;      /* приподнятые поверхности */
-  --line: #1b2a42;      /* волосяные линии */
-  --frost: #e7edf5;     /* основной текст */
-  --haze: #8d9db4;      /* второстепенный текст */
-  --copper: #e39a62;    /* акцент: медь колец детектора */
-  --signal: #4fd1e8;    /* данные, платный выбор, «живое» */
-  --ice: #8fb8d8;       /* цвет героини */
-  --steel: #1f4a7a;     /* холодный синий кадров */
-
-  --display: "Unbounded", "Arial Black", system-ui, sans-serif;
-  --body: "Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-
-  /* Интерфейс самой игры: app/lib/core/theme.dart */
-  --g-surface: rgba(34, 26, 46, .94);
-  --g-surface-hi: #2e2440;
-  --g-premium: #2b1e3f;
-  --g-accent: #e0457b;
-  --g-gem: #4fd1e8;
-  --g-text: #f4eef8;
-  --g-narr: rgba(0, 0, 0, .72);
-
-  --gutter: clamp(16px, 4vw, 40px);
-  --section: clamp(72px, 10vw, 136px);
-}
-
-* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-body {
-  margin: 0;
-  background: var(--void);
-  color: var(--frost);
-  font: 400 17px/1.6 var(--body);
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
-img, video { max-width: 100%; display: block; }
-[hidden] { display: none !important; }
-a { color: inherit; }
-button { font: inherit; color: inherit; }
-code { font-family: var(--mono); font-size: .88em; color: var(--frost); background: var(--hull); padding: .1em .35em; border-radius: 3px; }
-:focus-visible { outline: 2px solid var(--copper); outline-offset: 3px; }
-::selection { background: var(--copper); color: var(--void); }
-
-.wrap { max-width: 1200px; margin-inline: auto; padding-inline: var(--gutter); }
-
-.eyebrow {
-  display: flex; align-items: center; gap: 10px;
-  margin: 0 0 20px;
-  font: 500 12px/1.2 var(--mono);
-  letter-spacing: .16em; text-transform: uppercase;
-  color: var(--copper);
-}
-.eyebrow::before { content: ""; width: 7px; height: 7px; background: var(--copper); box-shadow: 0 0 12px var(--copper); }
-h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 500; }
-h2 { font: 500 clamp(1.75rem, 3.6vw, 2.9rem)/1.08 var(--display); letter-spacing: -.02em; max-width: 20ch; }
-.lead { margin: 22px 0 0; max-width: 62ch; color: var(--haze); font-size: clamp(1rem, 1.25vw, 1.125rem); }
-.lead strong { color: var(--frost); font-weight: 500; }
-section { padding-block: var(--section); border-top: 1px solid var(--line); }
-
-.head-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 64px; align-items: end; }
-.head-row .lead { margin: 0; }
-.sub-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px 24px; flex-wrap: wrap; margin: 88px 0 24px; }
-.sub-head h3 { font: 500 1.35rem/1.2 var(--display); letter-spacing: -.01em; }
-.sub-head p { margin: 0; font: 400 12.5px/1.5 var(--mono); color: var(--haze); max-width: 56ch; }
-
-.grid-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px 32px; margin: 64px 0 0; padding: 0; list-style: none; }
-.grid-list.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.grid-list li { padding-top: 18px; border-top: 1px solid var(--line); min-width: 0; }
-.grid-list h3 { font: 500 1rem/1.3 var(--display); letter-spacing: -.01em; }
-.grid-list p { margin: 10px 0 0; font-size: 15px; line-height: 1.55; color: var(--haze); }
-
-.live {
-  flex: none; width: 9px; height: 9px; border-radius: 50%;
-  background: var(--signal);
-  animation: live 2.4s ease-out infinite;
-}
-@keyframes live { 0% { box-shadow: 0 0 0 0 rgba(79,209,232,.6); } 70%, 100% { box-shadow: 0 0 0 10px rgba(79,209,232,0); } }
-
-/* ── Шапка ─────────────────────────────────────────── */
-.topbar {
-  position: relative; z-index: 2;
-  display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
-  padding-block: 22px;
-  font: 500 11.5px/1.3 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--haze);
-}
-.topbar b { color: var(--frost); font-weight: 500; }
-.topbar-right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.lang {
-  padding: 6px 9px; border: 1px solid var(--line); border-radius: 4px;
-  color: var(--frost); text-decoration: none; letter-spacing: .1em; transition: border-color .2s, color .2s;
-}
-.lang:hover { border-color: var(--copper); color: var(--copper); }
-
-/* ── Первый экран ─────────────────────────────────── */
-.hero { position: relative; overflow: hidden; border-top: 0; padding-block: 0 var(--section); }
-#fringes {
-  position: absolute; inset: 0; width: 100%; height: 100%; opacity: .6;
-  -webkit-mask-image: radial-gradient(ellipse 60% 75% at 74% 52%, #000 25%, transparent 78%);
-          mask-image: radial-gradient(ellipse 60% 75% at 74% 52%, #000 25%, transparent 78%);
-  pointer-events: none;
-}
-.hero-grid {
-  position: relative; z-index: 1;
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
-  align-items: center; gap: clamp(40px, 6vw, 96px);
-  padding-top: clamp(24px, 5vw, 64px);
-}
-.status-pill {
-  display: inline-flex; align-items: center; gap: 12px;
-  margin-bottom: 26px; padding: 9px 16px 9px 14px;
-  border: 1px solid rgba(79,209,232,.35); border-radius: 99px;
-  background: rgba(79,209,232,.07);
-  font: 500 12.5px/1 var(--mono); letter-spacing: .04em; color: var(--signal);
-}
-.hero h1 { font: 400 clamp(1.7rem, 4.1vw, 3.5rem)/1.06 var(--display); letter-spacing: -.035em; }
-.hero h1 em { font-style: normal; color: var(--copper); }
-.hero .lead { font-size: clamp(1.05rem, 1.4vw, 1.2rem); max-width: 52ch; }
-.facts {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 44px 0 0; padding: 0; list-style: none;
-  border-top: 1px solid var(--line); max-width: 560px;
-}
-.facts li { padding: 18px 18px 0 0; min-width: 0; }
-.facts li + li { padding-left: 18px; border-left: 1px solid var(--line); }
-.facts b { display: block; font: 400 clamp(1.3rem, 2vw, 1.7rem)/1.1 var(--display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.facts span { display: block; margin-top: 8px; font-size: 13.5px; line-height: 1.4; color: var(--haze); }
-
-.device-col { display: flex; flex-direction: column; align-items: center; gap: 18px; }
-.device-note { max-width: 330px; margin: 0; font: 400 12px/1.55 var(--mono); color: var(--haze); text-align: center; }
-.device-note i { font-style: normal; color: var(--signal); }
-
-/* ── Телефон и игра ───────────────────────────────── */
-.phone {
-  position: relative; width: min(100%, 350px); aspect-ratio: 9 / 19.5; padding: 11px; border-radius: 54px;
-  background: linear-gradient(150deg, #2a3242 0%, #0b0f17 38%, #070a10 70%, #1d2533 100%);
-  box-shadow: 0 0 0 1px #2c3647, inset 0 0 0 1px rgba(255,255,255,.06), 0 50px 90px -30px rgba(0,0,0,.9), 0 0 140px -30px rgba(227,154,98,.35);
-}
-.screen {
-  position: relative; width: 100%; height: 100%;
-  border-radius: 44px; overflow: hidden; isolation: isolate;
-  background: #000; cursor: pointer; container-type: size;
-  -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
-}
-.screen:focus-visible { outline-offset: 6px; }
-.bg { position: absolute; inset: 0; opacity: 0; transition: opacity .7s ease; z-index: 0; }
-.bg.show { opacity: 1; }
-.bg.top { z-index: 1; }
-.bg img, .bg video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.bg video { opacity: 0; transition: opacity .5s; }
-.bg video.on { opacity: 1; }
-.stage { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
-.fig {
-  position: absolute; bottom: 0; height: 78cqh; width: 39cqh;
-  left: calc(var(--x, .5) * 100cqw - 19.5cqh);
-  transform-origin: 50% 100%;
-  transition: left .35s ease-out, transform .2s, opacity .2s;
-}
-.fig img { width: 100%; height: 100%; object-fit: contain; }
-.fig.dim { transform: scale(.95); opacity: .7; }
-.fig.in-fade { animation: figFade .4s ease-out backwards; }
-.fig.in-right { animation: figRight .45s cubic-bezier(.2,.8,.2,1) backwards; }
-.fig.out-fade { animation: figFade .35s ease-in reverse forwards; }
-.fig.out-right { animation: figRight .4s ease-in reverse forwards; }
-@keyframes figFade { from { opacity: 0; } }
-@keyframes figRight { from { opacity: 0; translate: 45cqw 0; } }
-.hero-portrait {
-  position: absolute; bottom: 0; z-index: 3; height: 80cqh; width: 40cqh; left: -3.2cqh;
-  translate: -110% 0; opacity: 0; transition: translate .26s cubic-bezier(.2,.8,.2,1), opacity .2s; pointer-events: none;
-}
-.hero-portrait.on { translate: 0 0; opacity: 1; }
-.hero-portrait img { width: 100%; height: 100%; object-fit: contain; }
-.status {
-  position: absolute; top: 0; left: 0; right: 0; z-index: 9;
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 3.6cqw 8cqw 0 9cqw; height: 11cqw;
-  font: 600 3.7cqw/1 var(--body); color: #fff; pointer-events: none;
-}
-.status .icons { display: flex; gap: 1.4cqw; align-items: center; }
-.status .icons i { display: block; background: #fff; border-radius: 1px; }
-.island { position: absolute; top: 2.6cqw; left: 50%; translate: -50% 0; z-index: 10; width: 30cqw; height: 8.6cqw; border-radius: 99px; background: #000; }
-.hud { position: absolute; top: 13cqw; left: 4.5cqw; right: 4.5cqw; z-index: 8; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
-.chip {
-  padding: 1.6cqw 3.2cqw; border-radius: 99px;
-  background: rgba(10,14,22,.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,.1); font: 600 3.3cqw/1 var(--body); color: var(--g-text);
-}
-.gems { display: flex; align-items: center; gap: 1.4cqw; }
-.gems svg { width: 3.6cqw; height: 3.6cqw; color: var(--g-gem); }
-.gems.bump { animation: bump .5s; }
-@keyframes bump { 40% { transform: scale(1.18); border-color: var(--g-gem); } }
-.ui { position: absolute; left: 4cqw; right: 4cqw; bottom: 5cqw; z-index: 5; display: flex; flex-direction: column; gap: 3cqw; }
-.dlg {
-  position: relative; min-height: 30cqw; padding: 6.6cqw 5.2cqw 5.2cqw; border-radius: 18px;
-  background: var(--g-surface); border: 1.5px solid color-mix(in srgb, var(--spk, #fff) 70%, transparent);
-  color: var(--g-text); font: 400 4.3cqw/1.45 var(--body); animation: dlgIn .18s ease-out;
-}
-@keyframes dlgIn { from { opacity: .4; } }
-.dlg.narr { background: var(--g-narr); border-color: rgba(255,255,255,.12); text-align: center; font-style: italic; }
-.dlg.thought { border-radius: 28px; font-style: italic; }
-.plate { position: absolute; left: 4cqw; top: -4.4cqw; padding: 1.5cqw 3.8cqw; border-radius: 12px; background: var(--spk, #555); font: 700 3.8cqw/1.2 var(--body); font-style: normal; color: #fff; }
-.dlg.narr .plate { display: none; }
-.dlg.thought .plate { background: var(--g-surface-hi); }
-.txt { margin: 0; }
-.txt .rest { color: transparent; }
-.dlg.done::after {
-  content: ""; position: absolute; right: 4cqw; bottom: 3.2cqw;
-  border: 1.4cqw solid transparent; border-top-color: rgba(244,238,248,.7); border-bottom: 0;
-  animation: nudge 1.1s ease-in-out infinite;
-}
-@keyframes nudge { 50% { translate: 0 .9cqw; } }
-.choices { display: flex; flex-direction: column; gap: 2.6cqw; }
-.choice {
-  display: flex; align-items: center; gap: 3cqw; width: 100%; text-align: left; cursor: pointer;
-  padding: 4cqw 4.8cqw; border-radius: 16px; background: rgba(34,26,46,.95); border: 1px solid rgba(255,255,255,.24);
-  color: var(--g-text); font: 600 4.05cqw/1.3 var(--body);
-  animation: choiceIn .25s ease-out backwards; animation-delay: calc(var(--i, 0) * 80ms);
-  transition: background .15s, border-color .15s;
-}
-.choice:hover { background: rgba(46,36,64,.98); }
-.choice span:first-child { flex: 1; min-width: 0; }
-.choice.premium { background: var(--g-premium); border: 1.8px solid var(--g-gem); }
-.price { display: flex; align-items: center; gap: 1cqw; color: var(--g-gem); font-weight: 800; }
-.price svg { width: 3.8cqw; height: 3.8cqw; }
-@keyframes choiceIn { from { opacity: 0; translate: 0 4cqw; } }
-.blackout { position: absolute; inset: 0; z-index: 6; background: #000; opacity: 0; transition: opacity .38s; pointer-events: none; }
-.blackout.on { opacity: 1; }
-.titlecard {
-  position: absolute; inset: 0; z-index: 7; display: grid; place-items: center;
-  font: 300 5.4cqw/1 var(--display); letter-spacing: .34em; text-indent: .34em;
-  color: #e3ecf7; text-shadow: 0 0 18px rgba(143,184,216,.55);
-  opacity: 0; transition: opacity .6s; pointer-events: none;
-}
-.titlecard.on { opacity: 1; animation: titleIn 2.4s ease-out; }
-@keyframes titleIn {
-  0% { letter-spacing: .7em; filter: blur(6px); }
-  8% { translate: 1.2cqw 0; } 10% { translate: -1cqw 0; } 12% { translate: 0 0; }
-  45% { letter-spacing: .34em; filter: blur(0); }
-}
-.overlay { position: absolute; inset: 0; z-index: 11; display: flex; flex-direction: column; justify-content: flex-end; padding: 8cqw 7cqw 9cqw; cursor: default; }
-.start { background: linear-gradient(to top, rgba(6,12,24,.97) 0%, rgba(6,12,24,.82) 40%, rgba(6,12,24,0) 72%); }
-.start .meta { display: flex; gap: 2cqw; margin-bottom: 3.6cqw; }
-.start .meta span { padding: 1.3cqw 2.8cqw; border-radius: 99px; font: 600 3.1cqw/1 var(--body); color: var(--g-text); background: rgba(255,255,255,.1); }
-.start h3 { font: 500 8.4cqw/1.05 var(--display); letter-spacing: -.02em; color: #fff; }
-.start p { margin: 3.4cqw 0 6cqw; font: 400 3.8cqw/1.5 var(--body); color: rgba(244,238,248,.82); }
-.btn-game {
-  display: flex; align-items: center; justify-content: center; gap: 2cqw;
-  width: 100%; height: 13.6cqw; border: 0; border-radius: 14px; cursor: pointer;
-  background: var(--g-accent); color: #fff; font: 700 4.3cqw/1 var(--body);
-  box-shadow: 0 8px 24px -8px rgba(224,69,123,.7);
-}
-.btn-game:hover { filter: brightness(1.08); }
-.btn-game.ghost { background: transparent; border: 1.5px solid rgba(244,238,248,.4); box-shadow: none; }
-.start small { display: block; margin-top: 3cqw; text-align: center; font: 500 3.1cqw/1.3 var(--body); color: rgba(244,238,248,.6); }
-.end { justify-content: center; gap: 4cqw; background: rgba(5,10,19,.86); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.end h3 { font: 400 6.6cqw/1.1 var(--display); color: #fff; letter-spacing: -.01em; }
-.end p { margin: 0; font: 400 3.8cqw/1.5 var(--body); color: rgba(244,238,248,.78); }
-.memory { display: flex; flex-wrap: wrap; gap: 2cqw; margin: 0; padding: 0; list-style: none; }
-.memory li { padding: 1.8cqw 3cqw; border-radius: 10px; background: rgba(143,184,216,.12); border: 1px solid rgba(143,184,216,.28); font: 600 3.4cqw/1.2 var(--body); color: var(--g-text); }
-.memory li.paid { background: rgba(79,209,232,.12); border-color: var(--g-gem); color: var(--g-gem); }
-
-/* ── Локации и персонажи ──────────────────────────── */
-.reel {
-  display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
-  padding-bottom: 14px; scrollbar-width: thin; scrollbar-color: var(--line) transparent;
-}
-.reel > * { scroll-snap-align: start; flex: none; }
-.loc { margin: 0; width: 172px; }
-.loc .frame { position: relative; aspect-ratio: 9 / 19.5; border-radius: 20px; overflow: hidden; background: var(--hull); border: 1px solid var(--line); }
-.loc img, .loc video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.loc video, .vfx video { opacity: 0; transition: opacity .6s; }
-.loc video.on, .vfx video.on { opacity: 1; }
-.loc figcaption { margin-top: 10px; font: 400 11.5px/1.45 var(--mono); color: var(--haze); }
-.loc figcaption b { display: block; color: var(--frost); font-weight: 500; }
-.cast { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
-.cast::before {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 20px; height: 70%;
-  background: radial-gradient(closest-side, rgba(227,154,98,.2), transparent); pointer-events: none;
-}
-.cast li { position: relative; min-width: 0; cursor: pointer; }
-.cast .fig-wrap {
-  aspect-ratio: 1 / 2;
-  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 98%);
-          mask-image: linear-gradient(to bottom, #000 70%, transparent 98%);
-  transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .3s;
-}
-.cast img { width: 100%; height: 100%; object-fit: contain; }
-.cast:hover li:not(:hover) .fig-wrap { opacity: .55; }
-.cast li:hover .fig-wrap, .cast li.alt .fig-wrap { transform: translateY(-8px); }
-.cast .who { margin-top: -28px; position: relative; padding-inline: 4px; }
-.cast .who b { display: block; font: 500 .98rem/1.25 var(--display); letter-spacing: -.01em; }
-.cast .who span { display: block; margin-top: 6px; font: 400 11.5px/1.45 var(--mono); color: var(--haze); }
-
-/* ── Архитектура ──────────────────────────────────── */
-.arch { display: grid; gap: 18px; margin-top: 64px; }
-.lane { display: grid; grid-template-columns: 7.5rem repeat(3, minmax(0, 1fr)); gap: 0 34px; align-items: stretch; }
-.lane-name { align-self: center; font: 500 11.5px/1.3 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--copper); }
-.node { position: relative; min-width: 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: 6px; background: var(--hull); }
-.node b { display: block; font: 500 .95rem/1.3 var(--display); letter-spacing: -.01em; }
-.node span { display: block; margin-top: 6px; font-size: 14px; line-height: 1.45; color: var(--haze); }
-.node + .node::before {
-  content: "→"; position: absolute; left: -27px; top: 50%; translate: 0 -50%;
-  font: 400 16px/1 var(--mono); color: var(--copper);
-}
-.repo { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 32px 56px; margin-top: 72px; align-items: start; }
-.code {
-  margin: 0; padding: 22px 24px; overflow-x: auto;
-  border: 1px solid var(--line); border-radius: 6px; background: var(--hull);
-  font: 400 13px/1.7 var(--mono); color: var(--frost); white-space: pre; tab-size: 4;
-}
-.code .c { color: var(--haze); }
-.code .k { color: var(--copper); }
-.code .s { color: var(--ice); }
-.code .t { color: var(--signal); }
-.code-title { display: flex; justify-content: space-between; gap: 12px; margin: 0 0 10px; font: 400 11.5px/1.4 var(--mono); color: var(--haze); }
-.stack-groups { display: grid; gap: 22px; margin: 0; padding: 0; list-style: none; }
-.stack-groups h3 { font: 500 11.5px/1.3 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--copper); }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
-.chips li { padding: 7px 11px; border: 1px solid var(--line); border-radius: 4px; font: 400 12.5px/1 var(--mono); color: var(--frost); }
-
-/* ── Движок ───────────────────────────────────────── */
-.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px 64px; margin-top: 64px; align-items: start; }
-.points { display: grid; gap: 26px; margin: 0; padding: 0; list-style: none; }
-.points li { padding-top: 18px; border-top: 1px solid var(--line); }
-.points h3 { font: 500 1.02rem/1.3 var(--display); letter-spacing: -.01em; }
-.points p { margin: 10px 0 0; color: var(--haze); font-size: 15.5px; line-height: 1.6; }
-.sticky { position: sticky; top: 24px; }
-
-/* ── Клиент ───────────────────────────────────────── */
-.anim-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(0, 1.2fr); margin: 56px 0 0; padding: 0; list-style: none; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-.anim-row li { padding: 18px 18px 20px; border-right: 1px solid var(--line); min-width: 0; }
-.anim-row li:last-child { border-right: 0; background: var(--hull); }
-.anim-row b { display: block; font: 400 clamp(1.4rem, 2.4vw, 2rem)/1 var(--display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-.anim-row li:last-child b { color: var(--copper); }
-.anim-row span { display: block; margin-top: 8px; font-size: 13px; line-height: 1.4; color: var(--haze); }
-.anim-row small { display: block; margin-top: 8px; font: 400 11px/1.5 var(--mono); color: var(--haze); opacity: .8; }
-
-/* ── Сервер ───────────────────────────────────────── */
-.server-nums { display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 28px; font: 400 12.5px/1.4 var(--mono); color: var(--haze); }
-.server-nums b { color: var(--frost); font-weight: 500; }
-
-/* ── Арт и нейросети ──────────────────────────────── */
-.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; margin: 64px 0 0; padding: 0; list-style: none; counter-reset: step; }
-.steps > li { min-width: 0; counter-increment: step; }
-.steps .shot {
-  position: relative; aspect-ratio: 3 / 4; border-radius: 10px; overflow: hidden;
-  border: 1px solid var(--line); background: var(--hull);
-}
-.steps .shot > img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; }
-.shot.checker {
-  background-color: #1a2333;
-  background-image: linear-gradient(45deg, #222d40 25%, transparent 25%), linear-gradient(-45deg, #222d40 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #222d40 75%), linear-gradient(-45deg, transparent 75%, #222d40 75%);
-  background-size: 18px 18px; background-position: 0 0, 0 9px, 9px -9px, -9px 0;
-}
-.shot.checker > img, .shot.scene > img.hero-cut { object-fit: cover; object-position: 50% 0; }
-.shot.scene { background: url("../assets/bg/control_room.jpg") center / cover; }
-.shot.scene > img.hero-cut { position: absolute; inset: 8% 0 0; width: 100%; height: 100%; }
-.faces { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; height: 100%; background: var(--line); }
-.faces figure { position: relative; margin: 0; min-height: 0; }
-.faces img { width: 100%; height: 100%; object-fit: cover; }
-.faces figcaption {
-  position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 6px 5px;
-  background: linear-gradient(transparent, rgba(5,10,19,.85));
-  font: 400 10.5px/1 var(--mono); color: var(--frost);
-}
-.steps .tool { display: flex; align-items: baseline; gap: 10px; margin-top: 18px; font: 500 1rem/1.3 var(--display); letter-spacing: -.01em; }
-.steps .tool::before { content: counter(step); font: 400 11px/1 var(--mono); color: var(--copper); }
-.steps .tool small { font: 400 11px/1 var(--mono); color: var(--haze); letter-spacing: .04em; }
-.steps p { margin: 10px 0 0; color: var(--haze); font-size: 15px; line-height: 1.55; }
-
-.vfx { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 40px 64px; margin-top: 88px; align-items: center; }
-.vfx .frame { position: relative; aspect-ratio: 9 / 19.5; border-radius: 26px; overflow: hidden; border: 1px solid var(--line); background: var(--hull); box-shadow: 0 40px 80px -40px rgba(0,0,0,.9); }
-.vfx .frame img, .vfx .frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.vfx h3 { font: 500 1.35rem/1.25 var(--display); letter-spacing: -.01em; }
-.vfx > div > p { margin: 14px 0 0; color: var(--haze); max-width: 58ch; }
-.fx-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; margin: 24px 0 0; padding: 0; list-style: none; }
-.fx-list li { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
-.fx-list code { background: none; padding: 0; color: var(--copper); font-size: 12px; }
-.pipe-notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 32px; margin-top: 28px; }
-.pipe-notes p { margin: 0; color: var(--haze); font-size: 15px; }
-.pipe-notes b { color: var(--frost); font-weight: 500; }
-
-.ai-table { width: 100%; margin-top: 24px; border-collapse: collapse; }
-.ai-table th, .ai-table td { padding: 16px 0; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-.ai-table tr:first-child th, .ai-table tr:first-child td { border-top: 1px solid var(--line); }
-.ai-table th { width: 32%; padding-right: 24px; font: 500 1rem/1.35 var(--display); letter-spacing: -.01em; }
-.ai-table th small { display: block; margin-top: 5px; font: 400 11px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--haze); }
-.ai-table td { color: var(--haze); font-size: 15.5px; }
-.how { margin-top: 28px; padding: clamp(22px, 3vw, 32px); border: 1px solid var(--line); border-radius: 6px; background: var(--hull); }
-.how h3 { font: 500 1.1rem/1.3 var(--display); letter-spacing: -.01em; }
-.how p { margin: 12px 0 0; color: var(--haze); max-width: 75ch; }
-
-/* ── Качество ─────────────────────────────────────── */
-.bars { margin: 56px 0 0; padding: 0; list-style: none; display: grid; gap: 14px; max-width: 900px; }
-.bars li { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) 3.2rem; gap: 18px; align-items: center; }
-.bars .name { font-size: 15px; }
-.bars .name small { display: block; font: 400 11px/1.4 var(--mono); color: var(--haze); }
-.bars .track { height: 10px; border-radius: 5px; background: var(--hull); overflow: hidden; }
-.bars .bar { display: block; height: 100%; width: var(--w); border-radius: 5px; background: linear-gradient(90deg, var(--steel), var(--copper)); }
-.bars .n { text-align: right; font: 400 1.05rem/1 var(--display); font-variant-numeric: tabular-nums; }
-.bars .total { margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--line); }
-.bars .total .name { font-weight: 600; }
-.bars .total .n { color: var(--copper); }
-.bars .total .track { visibility: hidden; }
-.extra-checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 32px; margin-top: 48px; max-width: 900px; }
-.extra-checks div { padding-top: 16px; border-top: 1px solid var(--line); }
-.extra-checks b { display: block; font: 400 1.6rem/1.1 var(--display); letter-spacing: -.02em; color: var(--frost); font-variant-numeric: tabular-nums; }
-.extra-checks span { display: block; margin-top: 8px; color: var(--haze); font-size: 15px; }
-
-/* ── Статус ───────────────────────────────────────── */
-.roadmap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 64px 0 0; padding: 0; list-style: none; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-.roadmap > li { padding: 26px 26px 30px; border-right: 1px solid var(--line); min-width: 0; }
-.roadmap > li:last-child { border-right: 0; }
-.roadmap > li.now { background: var(--hull); }
-.roadmap h3 { display: flex; align-items: center; gap: 10px; font: 500 11.5px/1.3 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--haze); }
-.roadmap .now h3 { color: var(--signal); }
-.roadmap ul { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
-.roadmap ul li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.5; }
-.roadmap ul li::before { content: ""; position: absolute; left: 0; top: .55em; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--haze); }
-.roadmap .done ul li::before { background: var(--copper); border-color: var(--copper); }
-.roadmap .now ul li::before { border-color: var(--signal); }
-
-/* ── Финал ────────────────────────────────────────── */
-.finale { position: relative; overflow: hidden; padding-block: clamp(96px, 14vw, 180px); }
-.finale-bg {
-  position: absolute; inset: 0; z-index: 0;
-  background: url("../assets/bg/detector_cavern.jpg") center 58% / cover no-repeat; opacity: .42;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 55%); mask-image: linear-gradient(90deg, transparent 0%, #000 55%);
-}
-.finale::after { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(180deg, var(--void) 0%, transparent 25%, transparent 75%, var(--void) 100%); }
-.finale .wrap { position: relative; z-index: 1; }
-.finale h2 { font-size: clamp(2rem, 4.6vw, 3.8rem); max-width: 17ch; }
-.finale p { margin: 26px 0 0; max-width: 48ch; font-size: clamp(1.05rem, 1.4vw, 1.25rem); color: var(--frost); opacity: .85; }
-
-footer { padding-block: 36px 48px; border-top: 1px solid var(--line); }
-footer p { margin: 0; max-width: 80ch; font-size: 13px; line-height: 1.6; color: var(--haze); }
-footer p + p { margin-top: 8px; font-family: var(--mono); font-size: 11.5px; }
-
-/* ── Узкие экраны ─────────────────────────────────── */
-@media (max-width: 1000px) {
-  .grid-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .grid-list.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .lane { grid-template-columns: minmax(0, 1fr); gap: 30px; }
-  .lane-name { margin-bottom: -14px; }
-  .node + .node::before { content: "↓"; left: 18px; top: -24px; translate: 0 0; }
-  .repo, .split { grid-template-columns: minmax(0, 1fr); }
-  .sticky { position: static; }
-  .anim-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .anim-row li { border-bottom: 1px solid var(--line); }
-  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .vfx { grid-template-columns: minmax(0, 240px) minmax(0, 1fr); gap: 32px; }
-  .roadmap { grid-template-columns: minmax(0, 1fr); }
-  .roadmap > li { border-right: 0; border-bottom: 1px solid var(--line); }
-  .roadmap > li:last-child { border-bottom: 0; }
-}
-@media (max-width: 860px) {
-  .hero-grid { grid-template-columns: minmax(0, 1fr); }
-  #fringes { -webkit-mask-image: radial-gradient(ellipse 90% 45% at 50% 72%, #000 20%, transparent 80%); mask-image: radial-gradient(ellipse 90% 45% at 50% 72%, #000 20%, transparent 80%); }
-  .head-row { grid-template-columns: minmax(0, 1fr); }
-  .cast { display: flex; gap: 0; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; }
-  .cast li { flex: none; width: 44vw; max-width: 220px; scroll-snap-align: start; }
-  .vfx { grid-template-columns: minmax(0, 1fr); }
-  .vfx .frame { width: min(100%, 260px); }
-}
-@media (max-width: 560px) {
-  body { font-size: 16px; }
-  .br-wide { display: none; }
-  .hero .lead { font-size: 1rem; }
-  .facts { margin-top: 32px; }
-  .facts li { padding: 14px 10px 0 0; }
-  .facts li + li { padding-left: 10px; }
-  .facts b { font-size: 1.05rem; }
-  .facts span { font-size: 12px; }
-  .grid-list, .grid-list.three { grid-template-columns: minmax(0, 1fr); gap: 28px; }
-  .anim-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .steps { grid-template-columns: minmax(0, 1fr); }
-  .fx-list, .pipe-notes, .extra-checks { grid-template-columns: minmax(0, 1fr); }
-  .bars li { grid-template-columns: minmax(0, 1fr) 3rem; gap: 6px 12px; }
-  .bars .track { grid-column: 1 / -1; grid-row: 2; }
-  .ai-table th, .ai-table td { display: block; width: 100%; }
-  .ai-table th { padding-bottom: 4px; border-bottom: 0; }
-  .ai-table td { padding-top: 0; }
-  .ai-table tr:first-child td { border-top: 0; }
-  .loc { width: 148px; }
-  .code { font-size: 12px; padding: 18px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-  html { scroll-behavior: auto; }
-}
-</style>
+<link rel="stylesheet" href="../assets/css/site.css?v=1">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="gem" viewBox="0 0 24 24"><path fill="currentColor" d="M6.2 3h11.6l4.2 6-10 12L2 9l4.2-6Zm1 2-2.5 3.6h4.2L10.4 5H7.2Zm6.4 0 1.5 3.6h4.2L16.8 5h-3.2Zm-1.6.5L10.6 9h2.8L12 5.5ZM5.2 10.6l5.2 6.3-2.1-6.3H5.2Zm5.2 0L12 16l1.6-5.4h-3.2Zm5.3 0-2.1 6.3 5.2-6.3h-3.1Z"/></symbol>
-</svg>
-
-<header class="wrap topbar">
-  <span><b>Novella</b> · development case study</span>
-  <span class="topbar-right">Flutter · Dart · Ink · Supabase <a class="lang" href="../" hreflang="ru" lang="ru" aria-label="Русская версия">RU</a></span>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Throne Studios — home"><img src="../assets/brand/throne-studios-sm.png" alt="Throne Studios" width="455" height="152"></a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menu"><span></span></button>
+    <nav class="nav" id="nav" aria-label="Main menu">
+      <a href="storyveil/">StoryVeil</a>
+      <a href="studio/">Studio</a>
+      <a href="contacts/">Contact</a>
+      <a class="lang" href="../" hreflang="ru" lang="ru" aria-label="Русская версия">RU</a>
+      <a class="btn primary" href="#play" data-play>Play the demo</a>
+    </nav>
+  </div>
 </header>
 
-<main>
+<main id="main">
 <!-- ═══════════════ Hero ═══════════════ -->
 <section class="hero" aria-labelledby="hero-title">
   <canvas id="fringes" aria-hidden="true"></canvas>
   <div class="wrap hero-grid">
     <div>
-      <p class="status-pill"><span class="live" aria-hidden="true"></span>Preparing for commercial launch</p>
-      <p class="eyebrow">Mobile interactive story game</p>
-      <h1 id="hero-title">Novella —<br class="br-wide"> a mobile game<br class="br-wide"> on a custom engine</h1>
-      <p class="lead">Interactive stories for iOS and Android in the vein of League of Dreamers. A custom port of the Ink runtime to Dart, a Flutter client, a Supabase backend, purchases across three app stores, and art produced with neural networks and in-house tools. You can play the opening scenes right here.</p>
+      <img class="hero-logo" src="../assets/brand/throne-studios.png" alt="Throne Studios" width="910" height="304">
+      <p class="pill"><span class="live" aria-hidden="true"></span>StoryVeil launches this winter</p>
+      <h1 id="hero-title">We make stories<br class="br-wide"> where you decide</h1>
+      <p class="lead">Throne Studios is an independent mobile game studio. Our first game, <strong>StoryVeil</strong>, is a collection of interactive stories where every choice changes the plot and your relationships with the characters. You can play the opening of the first story right here.</p>
+      <div class="actions">
+        <a class="btn primary" href="#play" data-play>Play the demo</a>
+        <a class="btn ghost" href="storyveil/">About StoryVeil</a>
+      </div>
       <ul class="facts">
-        <li><b>484</b><span>automated tests, from runtime to server</span></li>
-        <li><b>23k</b><span>lines of code: Dart, SQL, Python</span></li>
+        <li><b>2026</b><span>the studio was founded</span></li>
+        <li><b>Winter</b><span>StoryVeil launch</span></li>
         <li><b>3 stores</b><span>App Store, Google Play, RuStore</span></li>
       </ul>
     </div>
 
-    <div class="device-col">
-      <div class="phone">
-        <div class="screen" id="screen" tabindex="0" role="group" aria-label="The game Interference. Tap the screen or press Space to continue.">
-          <div class="bg show top"><img alt="" src="../assets/bg/detector_cavern.jpg"><video muted loop playsinline preload="none" aria-hidden="true"></video></div>
-          <div class="bg"><img alt=""><video muted loop playsinline preload="none" aria-hidden="true"></video></div>
-          <div class="stage" id="stage"></div>
-          <div class="hero-portrait" id="heroP"><img alt=""></div>
-          <div class="ui">
-            <div class="choices" id="choices" hidden></div>
-            <div class="dlg narr" id="dlg" hidden>
-              <span class="plate" id="plate"></span>
-              <p class="txt" id="txt" aria-live="polite"></p>
-            </div>
-          </div>
-          <div class="blackout" id="blackout"></div>
-          <div class="titlecard" id="titleCard"></div>
-          <div class="status" aria-hidden="true">
-            <span>06:42</span>
-            <span class="icons"><i style="width:1cqw;height:1.6cqw"></i><i style="width:1cqw;height:2.2cqw"></i><i style="width:1cqw;height:2.8cqw"></i><i style="width:5.6cqw;height:2.8cqw;border-radius:.8cqw;margin-left:1cqw"></i></span>
-          </div>
-          <div class="island" aria-hidden="true"></div>
-          <div class="hud" aria-hidden="true">
-            <span class="chip">Chapter 1</span>
-            <span class="chip gems" id="gems"><svg><use href="#gem"/></svg><span id="gemCount">30</span></span>
-          </div>
-          <div class="overlay start" id="start">
-            <div class="meta"><span>Sci-fi</span><span>16+</span><span>Chapter 1</span></div>
-            <h3>Interference</h3>
-            <p>2046, CERN. The collider starts receiving data from experiments that haven't happened yet, and footage of people who are already gone.</p>
-            <button type="button" class="btn-game" id="play">Play</button>
-            <small>Chapter 1 excerpt · about three minutes</small>
-          </div>
-          <div class="overlay end" id="end" hidden>
-            <h3>End of excerpt</h3>
-            <p>The game remembered your choices:</p>
-            <ul class="memory" id="memory"></ul>
-            <p>Later scenes depend on them. The full chapter has 11 scenes, 8 branching points and 2 paid choices.</p>
-            <button type="button" class="btn-game ghost" id="replay">Play again</button>
-          </div>
-        </div>
-      </div>
-      <p class="device-note">A web reconstruction of the player: the script, art and UI rules come from the game, and the text is translated from Russian. In the app, Flutter renders the same scene. Choices marked with a <i>gem</i> are paid.</p>
+    <div class="device-col" id="play">
+      <div data-player></div>
+      <p class="device-note">An excerpt from chapter 1 of Interference, translated from Russian. Choices marked with a <i>gem</i> are special: in the game they unlock extra scenes.</p>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ Product ═══════════════ -->
-<section aria-labelledby="product-title">
+<!-- ═══════════════ Game ═══════════════ -->
+<section aria-labelledby="game-title">
   <div class="wrap">
     <div class="head-row">
       <div>
-        <p class="eyebrow">Product</p>
-        <h2 id="product-title">Stories where content is data</h2>
+        <p class="eyebrow">Our game</p>
+        <h2 id="game-title">Stories you live through yourself</h2>
       </div>
-      <p class="lead">The player reads a story and picks lines and actions. Choices change relationships with the characters and the scenes that follow. New chapters are meant to ship regularly, so stories live on the server and the app only plays them back.</p>
+      <p class="lead">You read the story, choose what to say and do, and the game remembers every decision. Your choices shape your relationships with the characters and the scenes you'll see next.</p>
     </div>
-    <ul class="grid-list">
-      <li><h3>Scene</h3><p>A background, up to three characters, a line of dialogue and choices. The heroine slides in from the left when she speaks or thinks.</p></li>
-      <li><h3>Branching and memory</h3><p>Ink variables: relationships, flags, the heroine's character. Decisions carry over between chapters.</p></li>
-      <li><h3>Paid choices</h3><p>Special lines and scenes cost gems. The server sets the price, not the client.</p></li>
-      <li><h3>Chapter tickets</h3><p>Up to two, plus one every two hours. Without a ticket, the player watches a rewarded ad or pays with gems.</p></li>
-      <li><h3>The player's hero</h3><p>Name and appearance at the start of a story, plus a wardrobe with purchasable outfits along the plot.</p></li>
-      <li><h3>Saves</h3><p>Resume from any line. A copy lives on the server, so progress follows the player to another device.</p></li>
-      <li><h3>Catalog</h3><p>Genre shelves, “Continue”, and “New” and “New chapter” badges.</p></li>
-      <li><h3>Online only</h3><p>The wallet and purchases live on the server. Without a connection, the game shows a reconnect screen.</p></li>
-    </ul>
 
-    <div class="sub-head">
-      <h3>First story: “Interference”</h3>
-      <p>Sci-fi, 16+. Chapter 1: 11 scenes, 8 branching points, 2 paid choices. Eight of the chapter's 14 live backgrounds are below.</p>
+    <div class="game-card">
+      <img class="app-icon" src="../assets/brand/storyveil-icon.webp" alt="StoryVeil app icon" width="512" height="512" loading="lazy">
+      <div>
+        <h3>StoryVeil</h3>
+        <p>A mobile game of interactive stories. Stories come out in chapters, each with its own genre, characters and world. The first one, the sci-fi story Interference, is about physics, memory and a choice that leaves no way back to your old answer.</p>
+        <ul class="tags">
+          <li>Interactive stories</li>
+          <li>Choices with consequences</li>
+          <li>New chapters</li>
+          <li>iOS and Android</li>
+        </ul>
+        <ul class="stores" aria-label="App stores">
+          <li><span class="store soon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7a4.6 4.6 0 0 0-3.6-1.9c-1.5-.2-3 .9-3.7.9-.8 0-2-.9-3.2-.9a4.8 4.8 0 0 0-4 2.5c-1.7 3-.4 7.3 1.2 9.7.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4a10 10 0 0 0 1.4-2.8 4.3 4.3 0 0 1-2.5-3.8ZM14 5.4a4.3 4.3 0 0 0 1-3.2 4.5 4.5 0 0 0-2.9 1.5 4.2 4.2 0 0 0-1 3.1A3.7 3.7 0 0 0 14 5.4Z"/></svg><span><small>Coming to</small><b>App Store</b></span></span></li>
+          <li><span class="store soon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#62e6bd" d="M3.6 2.3 13.3 12l-9.7 9.7c-.4-.2-.6-.6-.6-1.1V3.4c0-.5.2-.9.6-1.1Z"/><path fill="#a78bff" d="m16.6 15.3-3.3-3.3 3.3-3.3 3.9 2.2c1.1.6 1.1 1.6 0 2.2l-3.9 2.2Z"/><path fill="#8fd0e6" d="M16.6 8.7 13.3 12 3.6 2.3c.3-.2.8-.2 1.3.1l11.7 6.3Z"/><path fill="#eceaf4" d="M16.6 15.3 4.9 21.6c-.5.3-1 .3-1.3.1l9.7-9.7 3.3 3.3Z"/></svg><span><small>Coming to</small><b>Google Play</b></span></span></li>
+          <li><span class="store soon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="#2b6cf6"/><path fill="#fff" d="M7 7h5.2c2.2 0 3.6 1.2 3.6 3.1 0 1.4-.8 2.4-2 2.8l2.4 4.1h-2.6l-2.1-3.8H9.3V17H7V7Zm2.3 2v3.2h2.8c1 0 1.5-.6 1.5-1.6S13.1 9 12.1 9H9.3Z"/></svg><span><small>Coming to</small><b>RuStore</b></span></span></li>
+        </ul>
+        <div class="actions"><a class="link-arrow" href="storyveil/">More about the game</a></div>
+      </div>
     </div>
-    <div class="reel" id="locations">
-      <figure class="loc"><div class="frame"><img loading="lazy" alt="Q-Lattice hub" src="../assets/bg/qlattice_hub.jpg"><video muted loop playsinline preload="none" data-src="../assets/bg/qlattice_hub.mp4" aria-hidden="true"></video></div><figcaption><b>Q-Lattice hub</b>ASTERION's quantum clocks</figcaption></figure>
-      <figure class="loc"><div class="frame"><img loading="lazy" alt="Sector 4 service tunnel" src="../assets/bg/sector4_spine.jpg"><video muted loop playsinline preload="none" data-src="../assets/bg/sector4_spine.mp4" aria-hidden="true"></video></div><figcaption><b>Sector 4</b>service tunnel</figcaption></figure>
-      <figure class="loc"><div class="frame"><img loading="lazy" alt="Security camera frame in the tunnel" src="../assets/bg/keller_cam_far.jpg"><video muted loop playsinline preload="none" data-src="../assets/bg/keller_cam_far.mp4" aria-hidden="true"></video></div><figcaption><b>Sector 4 camera</b>the static is code too</figcaption></figure>
-      <figure class="loc"><div class="frame"><img loading="lazy" alt="Overlap zone Alpha" src="../assets/bg/overlap_zone_alpha.jpg"><video muted loop playsinline preload="none" data-src="../assets/bg/overlap_zone_alpha.mp4" aria-hidden="true"></video></div><figcaption><b>Overlap zone</b>“Alpha”</figcaption></figure>
-      <figure class="loc"><div class="frame"><img loading="lazy" alt="Archive of the old collider" src="../assets/bg/old_lhc_archive.jpg"><video muted loop playsinline preload="none" data-src="../assets/bg/old_lhc_archive.mp4" aria-hidden="true"></video></div><figcaption><b>LHC archive</b>the old collider</figcaption></figure>
-      <figure class="loc"><div class="frame"><img loading="lazy" alt="Containment level" src="../assets/bg/containment_level.jpg"><video muted loop playsinline preload="none" data-src="../assets/bg/containment_level.mp4" aria-hidden="true"></video></div><figcaption><b>Containment level</b>restricted sector</figcaption></figure>
-      <figure class="loc"><div class="frame"><img loading="lazy" alt="Glass meeting room" src="../assets/bg/meeting_room.jpg"><video muted loop playsinline preload="none" data-src="../assets/bg/meeting_room.mp4" aria-hidden="true"></video></div><figcaption><b>Meeting room</b>committee session</figcaption></figure>
-      <figure class="loc"><div class="frame"><img loading="lazy" alt="CERN campus in the morning" src="../assets/bg/surface_campus.jpg"><video muted loop playsinline preload="none" data-src="../assets/bg/surface_campus.mp4" aria-hidden="true"></video></div><figcaption><b>Campus</b>surface, morning</figcaption></figure>
+  </div>
+</section>
+
+<!-- ═══════════════ First story ═══════════════ -->
+<section aria-labelledby="story-title">
+  <div class="wrap">
+    <div class="head-row">
+      <div>
+        <p class="eyebrow">First story</p>
+        <h2 id="story-title">Interference</h2>
+      </div>
+      <p class="lead">CERN, 2046. The new ASTERION collider receives data from experiments that haven't happened yet, and footage of people who are already gone. Physicist Mira Koval has to work out what exactly she is seeing, and decide whom she can trust.</p>
     </div>
 
     <div class="sub-head">
       <h3>Characters</h3>
       <p>Hover over or tap a character to see another emotion.</p>
     </div>
-    <ul class="cast" id="cast">
-      <li data-id="hero" data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Mira Koval" src="../assets/chars/hero_neutral.webp"></div><div class="who"><b>Mira Koval</b><span>ASTERION physicist, the player's heroine</span></div></li>
-      <li data-id="elias" data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Elias Hartmann" src="../assets/chars/elias_neutral.webp"></div><div class="who"><b>Elias Hartmann</b><span>group lead</span></div></li>
-      <li data-id="adrian" data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Adrian Voss" src="../assets/chars/adrian_neutral.webp"></div><div class="who"><b>Adrian Voss</b><span>Helix Quantum Systems</span></div></li>
-      <li data-id="samira" data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Samira Rahal" src="../assets/chars/samira_neutral.webp"></div><div class="who"><b>Samira Rahal</b><span>Q-Lattice engineer</span></div></li>
-      <li data-id="viktor" data-a="thoughtful" data-b="smile"><div class="fig-wrap"><img loading="lazy" alt="Viktor Koval" src="../assets/chars/viktor_thoughtful.webp"></div><div class="who"><b>Viktor Koval</b><span>Mira's grandfather</span></div></li>
+    <ul class="cast">
+      <li data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Mira Koval" src="../assets/chars/hero_neutral.webp"></div><div class="who"><b>Mira Koval</b><span>ASTERION physicist, the heroine</span></div></li>
+      <li data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Elias Hartmann" src="../assets/chars/elias_neutral.webp"></div><div class="who"><b>Elias Hartmann</b><span>group lead</span></div></li>
+      <li data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Adrian Voss" src="../assets/chars/adrian_neutral.webp"></div><div class="who"><b>Adrian Voss</b><span>Helix Quantum Systems</span></div></li>
+      <li data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Samira Rahal" src="../assets/chars/samira_neutral.webp"></div><div class="who"><b>Samira Rahal</b><span>Q-Lattice engineer</span></div></li>
+      <li data-a="thoughtful" data-b="smile"><div class="fig-wrap"><img loading="lazy" alt="Viktor Koval" src="../assets/chars/viktor_thoughtful.webp"></div><div class="who"><b>Viktor Koval</b><span>Mira's grandfather</span></div></li>
     </ul>
+    <div class="actions"><a class="link-arrow" href="storyveil/#story">About the story and locations</a></div>
   </div>
 </section>
 
-<!-- ═══════════════ Architecture ═══════════════ -->
-<section aria-labelledby="arch-title">
+<!-- ═══════════════ Studio ═══════════════ -->
+<section aria-labelledby="studio-title">
   <div class="wrap">
     <div class="head-row">
       <div>
-        <p class="eyebrow">Architecture</p>
-        <h2 id="arch-title">Three flows: content, game, money</h2>
-      </div>
-      <p class="lead">A monorepo with the app, three pure-Dart packages, tooling and the server. The packages don't depend on Flutter, so the engine and the economy are tested without a device or a UI.</p>
-    </div>
-
-    <div class="arch" role="list" aria-label="Data flow diagram">
-      <div class="lane" role="listitem">
-        <span class="lane-name">Content</span>
-        <div class="node"><b>Inky</b><span>the writer authors the story in Ink</span></div>
-        <div class="node"><b>story_cli</b><span>validation, art, build, publishing</span></div>
-        <div class="node"><b>Supabase Storage</b><span>files by sha256, versions and drafts</span></div>
-      </div>
-      <div class="lane" role="listitem">
-        <span class="lane-name">Game</span>
-        <div class="node"><b>ink_runtime</b><span>port of the inkjs runtime to Dart</span></div>
-        <div class="node"><b>story_engine</b><span>scene events, SceneState, saves</span></div>
-        <div class="node"><b>Flutter player</b><span>scene, animations, live backgrounds</span></div>
-      </div>
-      <div class="lane" role="listitem">
-        <span class="lane-name">Money</span>
-        <div class="node"><b>BillingService</b><span>StoreKit, Google Play Billing, RuStore</span></div>
-        <div class="node"><b>Edge Function purchase</b><span>one grant per transaction</span></div>
-        <div class="node"><b>Postgres</b><span>wallet, purchases, operation ledger</span></div>
-      </div>
-    </div>
-
-    <div class="repo">
-      <div>
-        <p class="code-title"><span>Repository</span><span>73 commits</span></p>
-<pre class="code">novella/
-├── app/                   <span class="c">Flutter: catalog, player, shop, account</span>
-├── packages/
-│   ├── ink_runtime/       <span class="c">inkjs 2.4.0 → Dart port, 224 tests</span>
-│   ├── story_engine/      <span class="c">lines, @commands, paid choices</span>
-│   └── billing/           <span class="c">purchase and ad interfaces + fakes</span>
-├── tools/
-│   ├── story_cli/         <span class="c">validate · art · build · publish · server</span>
-│   ├── ink_compiler/      <span class="c">.ink → JSON via inklecate</span>
-│   └── art/               <span class="c">Python: cut-outs, layers, video, audio</span>
-├── content/stories/       <span class="c">story: manifest, script, art per chapter</span>
-├── supabase/              <span class="c">migrations, Edge Functions, SQL checks</span>
-└── docs/                  <span class="c">architecture, decisions, status</span></pre>
-      </div>
-      <ul class="stack-groups">
-        <li><h3>Client</h3><ul class="chips"><li>Flutter</li><li>Dart</li><li>Riverpod 3</li><li>go_router</li><li>video_player</li><li>audioplayers</li><li>shared_preferences</li></ul></li>
-        <li><h3>Script</h3><ul class="chips"><li>Ink</li><li>Inky</li><li>inklecate</li></ul></li>
-        <li><h3>Server</h3><ul class="chips"><li>Supabase</li><li>Postgres + RLS</li><li>Edge Functions · TypeScript</li><li>Storage</li></ul></li>
-        <li><h3>Platforms</h3><ul class="chips"><li>StoreKit</li><li>Google Play Billing</li><li>RuStore Billing</li><li>Yandex Ads</li><li>AppMetrica</li><li>Firebase Messaging</li></ul></li>
-        <li><h3>Tooling</h3><ul class="chips"><li>Python · uv</li><li>NumPy</li><li>OpenCV</li><li>ffmpeg</li><li>Node</li></ul></li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════ Engine ═══════════════ -->
-<section aria-labelledby="engine-title">
-  <div class="wrap">
-    <p class="eyebrow">Engine</p>
-    <h2 id="engine-title">A custom Ink runtime with a genre layer on top</h2>
-    <div class="split">
-      <ul class="points">
-        <li><h3>Ink runtime ported to Dart</h3><p>inkjs 2.4.0, rewritten from TypeScript into pure Dart. The API mirrors the official one: <code>continueStory</code>, <code>currentChoices</code>, <code>variablesState</code>, state as JSON. Where inkjs diverges from the original C# runtime (integers vs floats, truthiness), the port follows C#. All 224 ported inkjs tests pass.</p></li>
-        <li><h3>Scene commands as text lines</h3><p>The writer stages backgrounds, characters and music with lines like <code>@bg</code>, <code>@show</code> and <code>@music</code>. Ink external functions don't work for this: the runtime calls them while looking ahead, so a command would fire before its line is shown.</p></li>
-        <li><h3>story_engine: Ink stream → events</h3><p>Line, command, choices, variable change, end. The engine keeps <code>SceneState</code> (what's on screen right now) and a snapshot for saving. The player subscribes to events and knows nothing about Ink.</p></li>
-        <li><h3>Saves survive edits</h3><p>Every chapter has a fingerprint of its structure without the text (FNV-1a 64). Text in a released chapter can still be edited. If the structure changes, the chapter restarts from a checkpoint and purchases are kept.</p></li>
-        <li><h3>Paid chapters aren't in the app</h3><p>The build tool moves their knots to the server. The client fetches a chapter after purchase and splices it into the story, so it can't be pulled out of the binary.</p></li>
-      </ul>
-      <div class="sticky">
-        <p class="code-title"><span>ch1/ink/ch1.ink</span><span>the scene above, translated</span></p>
-<pre class="code" aria-label="Ink script excerpt"><span class="c">// SCENE 02 — control room, Elias's briefing.</span>
-<span class="k">@bg</span> control_room fade
-<span class="k">@music</span> work_calm
-ASTERION control room. A semicircle of screens…
-<span class="k">@show</span> Elias center neutral fade
-<span class="s">Elias (amused):</span> Koval, if the Universe decides
-  to break the Standard Model today…
-<span class="s">Me (amused):</span> I'll give it a deadline.
-
-<span class="t">* [Answer just as dryly]</span>
-    <span class="c">~ rel_elias += 2</span>
-    <span class="s">Me (neutral):</span> Residual correlations between…
-<span class="t">* [Needle him in front of the team]</span>
-    <span class="c">~ rel_elias += 1</span>
-    <span class="c">~ risk += 1</span>
-    <span class="s">Me (amused):</span> And if the Universe runs late…
-<span class="t">* [“You didn't sleep either?” #premium:20 #id:ch1_elias_private]</span>
-    <span class="c">~ rel_elias += 3</span>
-    <span class="s">Elias (surprised):</span> ...
-<span class="t">-</span>
-A door opens behind him…</pre>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════ Client ═══════════════ -->
-<section aria-labelledby="client-title">
-  <div class="wrap">
-    <div class="head-row">
-      <div>
-        <p class="eyebrow">Client</p>
-        <h2 id="client-title">Flutter client and scene player</h2>
-      </div>
-      <p class="lead">Riverpod 3 for state and dependencies, go_router for navigation. Environments are JSON configs: the server, store, ads and product IDs are chosen at build time. An incomplete config falls back to test stubs and logs the problem instead of crashing.</p>
-    </div>
-
-    <ul class="anim-row" aria-label="Scene animations">
-      <li><b>4</b><span>background transitions</span><small>fade_black, fade_white…</small></li>
-      <li><b>12</b><span>entrances</span><small>from_right, silhouette…</small></li>
-      <li><b>9</b><span>exits</span><small>to_left, dust…</small></li>
-      <li><b>11</b><span>actions</span><small>nod, recoil, pulse…</small></li>
-      <li><b>4</b><span>screen effects</span><small>shake, flash, glitch…</small></li>
-      <li><b>40</b><span>animations in the engine catalog, called by name from the script</span></li>
-    </ul>
-
-    <ul class="grid-list">
-      <li><h3>Live backgrounds</h3><p>A video loop over a still image via video_player. On the web and with the system “reduce motion” setting, only the still is shown.</p></li>
-      <li><h3>Layered characters</h3><p>Body, outfit and emotion face on a 1200×2400 canvas. The speaker is highlighted and the others are dimmed.</p></li>
-      <li><h3>Typewriter text</h3><p>22 ms per character, and a tap completes the line. An invisible tail keeps the box height steady, so the text doesn't jump.</p></li>
-      <li><h3>Pause menu</h3><p>Reading log (last 200 entries), relationships with characters, settings.</p></li>
-      <li><h3>Screens</h3><p>Catalog, story page, hero creation, wardrobe, shop, account, legal documents and consent.</p></li>
-      <li><h3>Audio</h3><p>Scene music and sound effects through an AudioService that respects the player's settings.</p></li>
-      <li><h3>Notifications</h3><p>Local ones for tickets, reminders after 1 and 3 days, and quiet hours. Push for new chapters.</p></li>
-      <li><h3>Analytics</h3><p>Funnel events in AppMetrica after the player consents. Revenue is logged once the server grants the purchase.</p></li>
-    </ul>
-  </div>
-</section>
-
-<!-- ═══════════════ Server ═══════════════ -->
-<section aria-labelledby="server-title">
-  <div class="wrap">
-    <div class="head-row">
-      <div>
-        <p class="eyebrow">Server</p>
-        <h2 id="server-title">The server owns money and progress</h2>
-      </div>
-      <p class="lead">Supabase: Postgres, Storage and Edge Functions. The client can't change a balance directly. It calls a function that checks the price, locks the wallet row and records the operation in a ledger.</p>
-    </div>
-    <div class="split">
-      <ul class="points">
-        <li><h3>Idempotent purchases</h3><p>Every charge goes through a key like <code>interference:choice:ch1_elias_private</code>. A repeated request never charges twice.</p></li>
-        <li><h3>Server-side prices</h3><p>The price list is tied to a story version. If the client sends an outdated price, the server answers <code>price_changed</code>.</p></li>
-        <li><h3>Store purchases</h3><p>The <code>purchase</code> Edge Function verifies payment and grants it once per transaction. The store transaction is finished only after the grant, and anything paid but not granted is delivered at the next launch.</p></li>
-        <li><h3>Sign-in and profile</h3><p>Players start as guests with an anonymous profile, then link VK ID or Yandex ID (through a custom OAuth bridge), Google or Apple. Account deletion is built in, as the stores require.</p></li>
-        <li><h3>Content publishing</h3><p>Files are stored in Storage under their content hash, and unchanged files are never re-uploaded. Drafts are visible only to testers. A release is a single command that also sends a new-chapter push.</p></li>
-      </ul>
-      <div class="sticky">
-        <p class="code-title"><span>Wallet functions</span><span>Postgres</span></p>
-<pre class="code"><span class="k">wallet_state</span>()
-  <span class="c">→ creates the wallet on first sign-in</span>
-
-<span class="k">spend</span>(key, currency, price)
-  <span class="c">→</span> <span class="t">ok</span> | <span class="t">already_purchased</span>
-  | <span class="t">insufficient_funds</span> | <span class="t">unknown_item</span>
-  | <span class="t">price_changed</span>
-
-<span class="k">claim_ad_reward</span>(placement)
-  <span class="c">→</span> <span class="t">ok</span> | <span class="t">limit_reached</span>   <span class="c">-- 3 a day, Moscow time</span>
-
-<span class="k">chapter_content</span>(story, version, chapter)
-  <span class="c">→</span> <span class="t">ok</span> + chapter knot | <span class="t">locked</span> | <span class="t">not_found</span>
-
-<span class="c">-- Every function returns the new wallet state.</span>
-<span class="c">-- The private schema isn't exposed via the API;</span>
-<span class="c">-- in public, players read only their own rows (RLS).</span></pre>
-        <p class="server-nums"><span><b>10</b> migrations</span><span><b>3</b> Edge Functions</span><span><b>6</b> SQL checks</span><span><b>30</b> function tests</span></p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════ Art and neural networks ═══════════════ -->
-<section aria-labelledby="art-title">
-  <div class="wrap">
-    <div class="head-row">
-      <div>
-        <p class="eyebrow">Art and neural networks</p>
-        <h2 id="art-title">Neural networks draw, in-house tools make it game-ready</h2>
-      </div>
-      <p class="lead">There's no artist on the team. Neural networks generate the characters and locations. In-house tools handle cut-outs, a shared canvas, emotions that keep the same face, live backgrounds and audio, and <code>story_cli art</code> rebuilds only what changed.</p>
-    </div>
-
-    <ol class="steps">
-      <li>
-        <div class="shot"><img loading="lazy" alt="Original heroine frame from Midjourney" src="../assets/pipeline/hero_frame.jpg"></div>
-        <p class="tool">Midjourney</p>
-        <p>One approved frame per character: pose, outfit, lighting. Backgrounds and the cover are generated the same way.</p>
-      </li>
-      <li>
-        <div class="shot">
-          <div class="faces">
-            <figure><img loading="lazy" alt="" src="../assets/pipeline/face_neutral.jpg"><figcaption>calm</figcaption></figure>
-            <figure><img loading="lazy" alt="" src="../assets/pipeline/face_amused.jpg"><figcaption>amused</figcaption></figure>
-            <figure><img loading="lazy" alt="" src="../assets/pipeline/face_skeptical.jpg"><figcaption>skeptical</figcaption></figure>
-            <figure><img loading="lazy" alt="" src="../assets/pipeline/face_surprised.jpg"><figcaption>surprised</figcaption></figure>
-            <figure><img loading="lazy" alt="" src="../assets/pipeline/face_scared.jpg"><figcaption>scared</figcaption></figure>
-            <figure><img loading="lazy" alt="" src="../assets/pipeline/face_angry.jpg"><figcaption>angry</figcaption></figure>
-          </div>
-        </div>
-        <p class="tool">Nano Banana <small>Google Gemini</small></p>
-        <p>Emotions from a head crop: only the brows, eyelids, eyes and mouth change. The face, hair and lighting stay the same.</p>
-      </li>
-      <li>
-        <div class="shot checker"><img loading="lazy" alt="The heroine with the background removed" src="../assets/chars/hero_neutral.webp"></div>
-        <p class="tool">BiRefNet</p>
-        <p>The background is removed locally and semi-transparent edge colors are cleaned, so dark scenes show no halo. The figure is placed on the canvas by template, with the top of the head at 5% from the top.</p>
-      </li>
-      <li>
-        <div class="shot scene"><img class="hero-cut" loading="lazy" alt="The heroine in the control room scene" src="../assets/chars/hero_amused.webp"></div>
-        <p class="tool">In game</p>
-        <p>Faces are pasted back into the frame and layers are assembled in the scene. Five characters, with three to six emotions each.</p>
-      </li>
-    </ol>
-
-    <div class="vfx">
-      <div class="frame">
-        <img loading="lazy" alt="ASTERION detector hall" src="../assets/bg/detector_cavern.jpg">
-        <video muted loop playsinline preload="none" data-src="../assets/bg/detector_cavern.mp4" aria-hidden="true"></video>
+        <p class="eyebrow">Studio</p>
+        <h2 id="studio-title">Two friends who live and breathe games</h2>
       </div>
       <div>
-        <p class="eyebrow">Live backgrounds</p>
-        <h3>Custom Python VFX instead of video generation</h3>
-        <p>A still frame is brought to life procedurally with NumPy and OpenCV. Only the named elements move and everything else stays put, so the frame doesn't drift the way generated video does. A scene is a small file listing effects and coordinates. The loop is closed: the last frame matches the first, and the seam is checked automatically.</p>
-        <ul class="fx-list">
-          <li>Steam and fog <code>billow</code></li>
-          <li>Dust motes in a beam <code>motes</code></li>
-          <li>Light shafts and bloom <code>light</code></li>
-          <li>Wave across the rings <code>glow_wave</code></li>
-          <li>Flickering lights <code>twinkle</code></li>
-          <li>Scrolling screens <code>scrolling</code></li>
-          <li>Rush in the lift shaft <code>rushing</code></li>
-          <li>“Overlap” distortion <code>overlap</code></li>
-        </ul>
-        <div class="pipe-notes">
-          <p><b>Phone-ready video.</b> H.264 up to 1080×1920, CRF 23, no audio, so it is hardware-decoded on any device. 14 loops of 30 seconds each.</p>
-          <p><b>Audio.</b> WAV is normalized to −18/−16 LUFS with a limiter and encoded to AAC, so every scene plays at the same loudness.</p>
-        </div>
+        <p class="lead">Throne Studios was founded in early 2026 by a game developer and a game story writer. We make what we want to play ourselves: stories with character, where choices carry weight.</p>
+        <div class="actions"><a class="link-arrow" href="studio/">About the studio</a></div>
       </div>
     </div>
-
-    <div class="sub-head">
-      <h3>AI services used</h3>
-      <p>All of these are tools in the team's hands. Decisions and review stay with people.</p>
-    </div>
-    <table class="ai-table">
-      <tbody>
-        <tr><th>Claude Code<small>Anthropic</small></th><td>My main development tool. Architecture and decisions are mine; I write code, tests and documentation together with the model. The chapter 1 script skeleton was built from the game bible, and the writer expands it.</td></tr>
-        <tr><th>Midjourney<small>image generation</small></th><td>Characters, the 14 locations of chapter 1, the cover. A dedicated prompt bible keeps the style consistent.</td></tr>
-        <tr><th>Nano Banana<small>Google Gemini</small></th><td>Character emotions by editing the source frame: one head crop, one prompt per emotion.</td></tr>
-        <tr><th>BiRefNet<small>runs locally</small></th><td>Background removal under a commercial-use license. About 4 seconds per image.</td></tr>
-        <tr><th>SegFormer<small>runs locally</small></th><td>Clothing and hair segmentation: the heroine's layers for outfit changes and recoloring.</td></tr>
-      </tbody>
-    </table>
-    <div class="how">
-      <h3>How the work with the model is organized</h3>
-      <p>Architecture, decisions and current status live in the repository as documents, so the model, the writer and I follow the same rules. Every change goes through tests: the engine, the economy and the server are checked without a device, so a fast pace doesn't break what's already done.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════ Quality ═══════════════ -->
-<section aria-labelledby="qa-title">
-  <div class="wrap">
-    <p class="eyebrow">Quality</p>
-    <h2 id="qa-title">484 automated tests across every layer</h2>
-    <p class="lead">The runtime is checked against inkjs's own test suite, the server with SQL checks and Node tests for its functions, and the art pipeline in Python. The app has tests for the player, chapters, wallet, save sync, shop and sign-in.</p>
-    <ul class="bars">
-      <li><span class="name">ink_runtime<small>Dart · ported inkjs tests</small></span><span class="track"><span class="bar" style="--w: 100%"></span></span><span class="n">224</span></li>
-      <li><span class="name">App<small>Flutter · widgets and logic</small></span><span class="track"><span class="bar" style="--w: 64.7%"></span></span><span class="n">145</span></li>
-      <li><span class="name">story_cli<small>Dart · story build and validation</small></span><span class="track"><span class="bar" style="--w: 16.1%"></span></span><span class="n">36</span></li>
-      <li><span class="name">Edge Functions<small>Node · purchases, sign-in, push</small></span><span class="track"><span class="bar" style="--w: 13.4%"></span></span><span class="n">30</span></li>
-      <li><span class="name">Art pipeline<small>Python · cut-outs, video, audio</small></span><span class="track"><span class="bar" style="--w: 11.2%"></span></span><span class="n">25</span></li>
-      <li><span class="name">story_engine<small>Dart · events and chapters</small></span><span class="track"><span class="bar" style="--w: 9.4%"></span></span><span class="n">21</span></li>
-      <li><span class="name">billing<small>Dart · purchase and ad fakes</small></span><span class="track"><span class="bar" style="--w: 1.3%"></span></span><span class="n">3</span></li>
-      <li class="total"><span class="name">Total</span><span class="track" aria-hidden="true"></span><span class="n">484</span></li>
-    </ul>
-    <div class="extra-checks">
-      <div><b>4,374</b><span>playthroughs of chapter 1 run by the engine. Every one reaches the end, with no dead ends.</span></div>
-      <div><b>6</b><span>SQL checks on the server: economy, content, account deletion, push, catalog, publishing.</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════ Status ═══════════════ -->
-<section aria-labelledby="status-title">
-  <div class="wrap">
-    <p class="eyebrow">Status</p>
-    <h2 id="status-title">Preparing for commercial launch</h2>
-    <p class="lead">The vertical slice works end to end, from the catalog to the end of a chapter, with purchases going through a test store. The product is now being prepared for store release and the start of sales.</p>
-    <ul class="roadmap">
-      <li class="done">
-        <h3>Done</h3>
-        <ul>
-          <li>Engine, player and 40 scene animations</li>
-          <li>Economy: gems, tickets, paid choices, rewarded ads</li>
-          <li>Server: wallet, purchases, saves, content publishing</li>
-          <li>Account sign-in, profile deletion, legal documents and consent</li>
-          <li>Analytics, local notifications and push</li>
-          <li>First story: 5 characters, 14 live backgrounds, chapter 1 skeleton</li>
-        </ul>
-      </li>
-      <li class="now">
-        <h3><span class="live" aria-hidden="true"></span>In progress</h3>
-        <ul>
-          <li>Products and sandboxes in App Store, Google Play and RuStore</li>
-          <li>Production server in Russia under the data localization law (152-FZ)</li>
-          <li>Sign-in providers and bot protection on production keys</li>
-          <li>Full chapter 1 text and audio</li>
-        </ul>
-      </li>
-      <li>
-        <h3>Next</h3>
-        <ul>
-          <li>Commercial launch</li>
-          <li>New chapters on a schedule</li>
-          <li>Character animation in Spine with skins</li>
-        </ul>
-      </li>
-    </ul>
   </div>
 </section>
 
 <!-- ═══════════════ Finale ═══════════════ -->
 <section class="finale" aria-labelledby="finale-title">
-  <div class="finale-bg" aria-hidden="true"></div>
+  <div class="finale-bg" aria-hidden="true" style="background-image: url('../assets/bg/detector_cavern.jpg')"></div>
   <div class="wrap">
-    <p class="eyebrow">Next</p>
-    <h2 id="finale-title">Happy to walk through the code and architecture in an interview</h2>
-    <p>We can dig into any layer: the Ink runtime, the player, the server-side economy or the art pipeline.</p>
+    <p class="eyebrow">Get in touch</p>
+    <h2 id="finale-title">Want to work together or just say hi?</h2>
+    <p>Players, press and partners: write to us, and we'll get back to you.</p>
+    <div class="actions"><a class="btn primary" href="contacts/">Contact</a></div>
   </div>
 </section>
 </main>
 
-<footer>
+<footer class="site-foot">
   <div class="wrap">
-    <p>Novella is a personal project. The excerpt at the top is a web reconstruction of the player using the game's art and script, translated from Russian. Chapter 1 is a draft.</p>
-    <p>ASTERION · RUN 78429 · 06:42</p>
+    <div class="foot-grid">
+      <div>
+        <img src="../assets/brand/throne-studios-sm.png" alt="Throne Studios" width="455" height="152" loading="lazy">
+        <p>An independent studio of interactive stories. StoryVeil launches this winter on iOS and Android.</p>
+      </div>
+      <div>
+        <h2>Site</h2>
+        <ul>
+          <li><a href="storyveil/">StoryVeil</a></li>
+          <li><a href="studio/">Studio</a></li>
+          <li><a href="contacts/">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Social</h2>
+        <ul data-socials="footer"><li class="muted">Coming soon</li></ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Throne Studios</span>
+      <span>StoryVeil is a Throne Studios game</span>
+    </div>
   </div>
 </footer>
 
-<script>
-(() => {
-  "use strict";
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const $ = (s) => document.querySelector(s);
-  const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? Math.min(ms, 120) : ms));
-
-  /* ── Интерференция на первом экране: две точки-источника, одна идёт за курсором ── */
-  (function fringes() {
-    const cv = $("#fringes");
-    const host = cv.parentElement;
-    const ctx = cv.getContext("2d");
-    let W = 0, H = 0, img;
-    function size() {
-      const r = host.getBoundingClientRect();
-      W = 190;
-      H = Math.max(80, Math.round((W * r.height) / Math.max(1, r.width)));
-      cv.width = W; cv.height = H;
-      img = ctx.createImageData(W, H);
-    }
-    size();
-    addEventListener("resize", () => { size(); draw(); });
-    let px = 0.32, py = 0.62, tx = px, ty = py, t = 0;
-    host.addEventListener("pointermove", (e) => {
-      const r = host.getBoundingClientRect();
-      tx = (e.clientX - r.left) / r.width;
-      ty = (e.clientY - r.top) / r.height;
-    });
-    const k = (2 * Math.PI) / 7.2;
-    function draw() {
-      px += (tx - px) * 0.05; py += (ty - py) * 0.05;
-      const narrow = innerWidth <= 860;
-      const s1x = W * (narrow ? 0.5 : 0.74) + Math.cos(t * 0.13) * W * 0.03;
-      const s1y = H * (narrow ? 0.72 : 0.5) + Math.sin(t * 0.11) * H * 0.04;
-      const s2x = W * px, s2y = H * py;
-      const d = img.data;
-      let o = 0;
-      for (let y = 0; y < H; y++) {
-        for (let x = 0; x < W; x++) {
-          const d1 = Math.hypot(x - s1x, y - s1y);
-          const d2 = Math.hypot(x - s2x, y - s2y);
-          const a = Math.cos(k * d1 - t) / (1 + d1 * 0.012) + Math.cos(k * d2 - t) / (1 + d2 * 0.012);
-          let I = a * a * 0.32;
-          if (I > 1) I = 1;
-          d[o] = 31 + 196 * I; d[o + 1] = 74 + 80 * I; d[o + 2] = 122 - 24 * I; d[o + 3] = 30 + I * 150;
-          o += 4;
-        }
-      }
-      ctx.putImageData(img, 0, 0);
-    }
-    draw();
-    if (reduce) return;
-    let visible = true, running = false, last = 0;
-    function loop(now) {
-      if (!visible || document.hidden) { running = false; return; }
-      if (now - last > 33) { t += 0.11; draw(); last = now; }
-      requestAnimationFrame(loop);
-    }
-    function kick() { if (!running && visible && !document.hidden) { running = true; requestAnimationFrame(loop); } }
-    new IntersectionObserver(([e]) => { visible = e.isIntersecting; kick(); }).observe(host);
-    document.addEventListener("visibilitychange", kick);
-  })();
-
-  /* ── Фрагмент главы 1. Текст — из content/stories/interference/ch1/ink/ch1.ink ── */
-  const CH = {
-    hero:   { name: "Mira",   color: "#8fb8d8" },
-    viktor: { name: "Viktor", color: "#c9a66b" },
-    samira: { name: "Samira", color: "#d98a5c" },
-    elias:  { name: "Elias",  color: "#7fa3c7" },
-  };
-  const POS = { left: 0.24, center: 0.5, right: 0.76 };
-
-  const SCRIPT = [
-    ["bg", "balcony_night", "black"],
-    ["n", "I'm eight years old. The night is warm, and nobody is sending me to bed tonight."],
-    ["n", "An old desk lamp glows on the balcony. Grandpa is fussing with his telescope — adjusting, squinting, adjusting again."],
-    ["show", "viktor", "center", "thoughtful", "fade"],
-    ["say", "viktor", "thoughtful", "Right. Jupiter won't wait for us tonight. Come here, Mira."],
-    ["n", "I press my eye to the cold eyepiece. A tiny striped pea hangs in the black circle, trembling as if under water."],
-    ["n", "“Why is it shaking?” I ask."],
-    ["say", "viktor", "neutral", "Because there's always something between you and a star. Air, glass, the instrument, your own eyes."],
-    ["say", "viktor", "thoughtful", "Science begins when you ask: what exactly am I seeing right now? The world, or what my way of looking has done to it?"],
-    ["n", "Next to Grandpa's notebook lies a coin. Ordinary, worn. I turn it over in my fingers."],
-    ["say", "viktor", "smile", "Want to play a game?"],
-    ["n", "He flips the coin, catches it and covers it with his palm without looking."],
-    ["say", "viktor", "thoughtful", "If after the toss you could learn not one result, but both — would you look?"],
-    ["choice", [
-      { text: "Of course. Otherwise why toss it at all?", set: { risk: 1 }, then: [
-        ["n", "“Of course,” I say. “Otherwise why toss it at all?”"],
-        ["say", "viktor", "smile", "That's exactly why you can't be left alone in the kitchen."],
-      ] },
-      { text: "First I'd check that the coin isn't cheating us.", set: { evidence: 1 }, then: [
-        ["n", "“First I'd check that the coin isn't cheating us.”"],
-        ["say", "viktor", "smile", "Go ahead. It's mine, and I haven't trusted it in forty years."],
-      ] },
-      { text: "And if the second answer turns out worse?", set: { acceptance: 1 }, then: [
-        ["n", "“And if the second answer turns out worse?”"],
-        ["say", "viktor", "thoughtful", "Then you'll know that too. Knowing is sometimes hard. Not knowing is harder."],
-      ] },
-    ]],
-    ["n", "He still doesn't lift his hand."],
-    ["say", "viktor", "smile", "Remember this. The most interesting questions are the ones after which you can't go back to your old answer."],
-    ["hide", "viktor", "fade"],
-    ["title", "INTERFERENCE", "lift"],
-    ["n", "CERN. Twenty-six years later."],
-    ["n", "The express lift plunges down. Two hundred meters of rock in ninety seconds."],
-    ["n", "Level markings glow on the cabin glass. Three lines on the panel: FIRST PHYSICS RUN. ASTERION. 06.42."],
-    ["show", "samira", "right", "amused", "from_right"],
-    ["say", "samira", "amused", "You look like we're not about to launch the biggest scientific machine in Europe, but going to break some bad news to it."],
-    ["t", "neutral", "Samira Rahal. Quantum metrology, the best engineer on Q-Lattice, and the only person you can tell “I didn't sleep” without getting a lecture back."],
-    ["choice", [
-      { text: "If it works, the news will be good.", set: { evidence: 1 }, then: [
-        ["say", "hero", "neutral", "If it works, the news will be good."],
-        ["say", "samira", "amused", "“If.” I love it when physicists cheer each other up."],
-      ] },
-      { text: "If it doesn't blow up, that's already great.", set: { risk: 1 }, then: [
-        ["say", "hero", "amused", "If it doesn't blow up, that's already great."],
-        ["say", "samira", "amused", "It doesn't blow up. It breaks very expensively and very quietly."],
-      ] },
-      { text: "I've waited for this half my life.", set: { legacy: 1 }, then: [
-        ["say", "hero", "neutral", "I've waited for this half my life."],
-        ["say", "samira", "neutral", "I know. That's why I'm asking."],
-        ["t", "neutral", "Not half. Longer. Since that balcony."],
-      ] },
-    ]],
-    ["bg", "detector_cavern", "fade"],
-    ["n", "The doors open straight onto the technical gallery. And behind the glass — there it is."],
-    ["n", "ASTERION. Detector rings as tall as a cathedral, cable trusses, catwalks, and somewhere far below, people as tiny as dots on a graph."],
-    ["t", "surprised", "I've seen it in blueprints so many times. No blueprint warns you that you'll want to whisper in front of it."],
-    ["say", "samira", "neutral", "Every time, the same thing. I look at it and think: did we really build this?"],
-    ["say", "samira", "amused", "Then I remember how many of my sleepless nights went into it, and it passes. Come on. Hartmann hates it when people are late for his jokes."],
-    ["hide", "samira", "to_right"],
-    ["bg", "control_room", "fade"],
-    ["n", "ASTERION control room. A semicircle of screens, dimmed lights, twenty people, and not one of them speaks louder than necessary."],
-    ["show", "elias", "center", "neutral", "fade"],
-    ["n", "Elias Hartmann runs a briefing the way he writes papers: without a single wasted word."],
-    ["say", "elias", "neutral", "Beams are on schedule. First-physics window in eleven minutes. The invisible-signatures group..."],
-    ["n", "His eyes find me."],
-    ["say", "elias", "amused", "Koval, if the Universe decides to break the Standard Model today, try to get it written up before lunch. I have a committee at four."],
-    ["say", "hero", "amused", "I'll give it a deadline."],
-    ["n", "A chuckle runs through the room. Six years in the same group, and I still don't know if he ever jokes off-topic."],
-    ["n", "The briefing is over and people head to their consoles. Elias lingers at mine."],
-    ["choice", [
-      { text: "Answer just as dryly", set: { elias: 2 }, then: [
-        ["say", "hero", "neutral", "I'm tracking residual correlations between subsystems myself. If anything shows up, you'll be the first to know."],
-        ["say", "elias", "neutral", "That's what I'm counting on."],
-      ] },
-      { text: "Needle him in front of the team", set: { elias: 1, risk: 1 }, then: [
-        ["say", "hero", "amused", "And if the Universe runs past four, will the committee wait, or should I cancel it?"],
-        ["say", "elias", "amused", "The committee has waited twenty years. The Universe will manage faster."],
-      ] },
-      { text: "“You didn't sleep either?”", premium: 20, set: { elias: 3 }, then: [
-        ["n", "I say it quietly, so only he can hear."],
-        ["say", "hero", "neutral", "You didn't sleep either?"],
-        ["say", "elias", "surprised", "..."],
-        ["say", "elias", "neutral", "Since three. Rereading your noise model. For the fourth time."],
-        ["say", "hero", "amused", "Find a mistake?"],
-        ["say", "elias", "amused", "No. That's what worries me."],
-        ["t", "neutral", "For the first time he said “your model,” not “the group's model.”"],
-      ] },
-    ]],
-    ["n", "A door opens behind him, and the whole room quietly straightens up."],
-    ["say", "elias", "serious", "Voss is on site. Officially he's a guest. In reality his company built the Q-Lattice core, and half the committee is here because of him."],
-    ["say", "elias", "neutral", "Be yourself with him. Just at half strength."],
-    ["end"],
-  ];
-
-  const MEMORY = {
-    risk: "Risk",
-    evidence: "Evidence",
-    acceptance: "Openness to the “second answer”",
-    legacy: "Opened up to Samira",
-    elias: "Relationship with Elias",
-  };
-
-  const screen = $("#screen"), stage = $("#stage");
-  const heroP = $("#heroP"), heroImg = heroP.querySelector("img");
-  const dlg = $("#dlg"), plate = $("#plate"), txt = $("#txt"), choicesEl = $("#choices");
-  const blackout = $("#blackout"), titleCard = $("#titleCard");
-  const startEl = $("#start"), endEl = $("#end"), gemsEl = $("#gems"), gemCount = $("#gemCount");
-  const layers = [...screen.querySelectorAll(".bg")].map((el) => ({ el, img: el.querySelector("img"), video: el.querySelector("video") }));
-  let front = 0;
-  const charSrc = (id, emo) => `../assets/chars/${id}_${emo}.webp`;
-
-  function loadBg(layer, name) {
-    layer.img.src = `../assets/bg/${name}.jpg`;
-    const v = layer.video;
-    v.classList.remove("on");
-    v.onplaying = () => v.classList.add("on");
-    v.src = `../assets/bg/${name}.mp4`;
-    const p = v.play();
-    if (p) p.catch(() => {});
-  }
-
-  loadBg(layers[0], "detector_cavern");
-  new IntersectionObserver(([e]) => {
-    for (const l of layers) {
-      if (!l.el.classList.contains("show")) continue;
-      if (e.isIntersecting) { const p = l.video.play(); if (p) p.catch(() => {}); } else l.video.pause();
-    }
-  }).observe(screen);
-
-  async function setBg(name, mode) {
-    if (mode === "black") {
-      dlg.hidden = true;
-      heroP.classList.remove("on");
-      blackout.classList.add("on");
-      await sleep(420);
-      loadBg(layers[front], name);
-      await sleep(160);
-      blackout.classList.remove("on");
-      await sleep(380);
-      return;
-    }
-    const old = layers[front], next = layers[1 - front];
-    loadBg(next, name);
-    next.el.classList.add("show", "top");
-    old.el.classList.remove("top");
-    front = 1 - front;
-    setTimeout(() => { if (layers[front] !== old) { old.el.classList.remove("show"); old.video.pause(); } }, 760);
-    await sleep(380);
-  }
-
-  const onStage = new Map();
-  function show(id, pos, emo, anim) {
-    let s = onStage.get(id);
-    if (!s) {
-      const el = document.createElement("div");
-      el.className = "fig " + (anim === "from_right" ? "in-right" : "in-fade");
-      const img = new Image();
-      img.alt = "";
-      el.append(img);
-      stage.append(el);
-      s = { el, img, emo: null };
-      onStage.set(id, s);
-    }
-    s.el.style.setProperty("--x", POS[pos]);
-    emote(id, emo);
-  }
-  function emote(id, emo) {
-    const s = onStage.get(id);
-    if (s && s.emo !== emo) { s.emo = emo; s.img.src = charSrc(id, emo); }
-  }
-  function hide(id, anim) {
-    const s = onStage.get(id);
-    if (!s) return;
-    onStage.delete(id);
-    s.el.classList.remove("in-fade", "in-right", "dim");
-    s.el.classList.add(anim === "to_right" ? "out-right" : "out-fade");
-    setTimeout(() => s.el.remove(), 460);
-  }
-  function highlight(speaker) {
-    for (const [id, s] of onStage) s.el.classList.toggle("dim", speaker !== null && speaker !== id);
-  }
-
-  // Печать по буквам: 22 мс на знак, как в DialogueBox; невидимый хвост держит высоту.
-  let revealing = false, typeRaf = 0, typeText = "", shownEl, restEl;
-  function type(text) {
-    cancelAnimationFrame(typeRaf);
-    typeText = text;
-    txt.textContent = "";
-    shownEl = document.createElement("span");
-    restEl = document.createElement("span");
-    restEl.className = "rest";
-    restEl.textContent = text;
-    txt.append(shownEl, restEl);
-    dlg.classList.remove("done");
-    if (reduce) return finishType();
-    revealing = true;
-    const t0 = performance.now();
-    let n = 0;
-    const tick = (now) => {
-      const c = Math.min(text.length, Math.floor((now - t0) / 22));
-      if (c !== n) { n = c; shownEl.textContent = text.slice(0, n); restEl.textContent = text.slice(n); }
-      if (n < text.length) typeRaf = requestAnimationFrame(tick); else finishType();
-    };
-    typeRaf = requestAnimationFrame(tick);
-  }
-  function finishType() {
-    cancelAnimationFrame(typeRaf);
-    revealing = false;
-    shownEl.textContent = typeText;
-    restEl.textContent = "";
-    dlg.classList.add("done");
-  }
-
-  function line(kind, who, emo, text) {
-    dlg.hidden = false;
-    dlg.className = "dlg " + (kind === "n" ? "narr" : kind === "t" ? "thought" : "speech");
-    void dlg.offsetWidth;
-    dlg.style.setProperty("--spk", who ? CH[who].color : "#ffffff");
-    plate.textContent = kind === "t" ? "Thoughts" : who ? CH[who].name : "";
-    if (who && who !== "hero") emote(who, emo);
-    if (who === "hero") {
-      heroImg.src = charSrc("hero", emo || "neutral");
-      heroP.classList.add("on");
-    } else heroP.classList.remove("on");
-    highlight(kind === "n" ? null : who);
-    type(text);
-  }
-
-  let gems = 30;
-  function setGems(n) {
-    gems = n;
-    gemCount.textContent = n;
-    gemsEl.classList.remove("bump");
-    void gemsEl.offsetWidth;
-    gemsEl.classList.add("bump");
-  }
-
-  let stack = [], vars = {}, busy = false, waitingChoice = false, playing = false;
-  function choose(opts) {
-    choicesEl.textContent = "";
-    dlg.classList.remove("done");
-    opts.forEach((o, i) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "choice" + (o.premium ? " premium" : "");
-      b.style.setProperty("--i", i);
-      const label = document.createElement("span");
-      label.textContent = o.text;
-      b.append(label);
-      if (o.premium) {
-        const price = document.createElement("span");
-        price.className = "price";
-        price.innerHTML = `<svg aria-hidden="true"><use href="#gem"/></svg>${o.premium}`;
-        b.append(price);
-        b.setAttribute("aria-label", `${o.text}. Paid choice: ${o.premium} gems`);
-      }
-      b.addEventListener("click", (e) => { e.stopPropagation(); pick(o); });
-      choicesEl.append(b);
-    });
-    choicesEl.hidden = false;
-    waitingChoice = true;
-  }
-  function pick(o) {
-    if (!waitingChoice) return;
-    if (o.premium) {
-      if (gems < o.premium) { setGems(gems); return; }
-      setGems(gems - o.premium);
-      vars.paid = o.premium;
-    }
-    for (const [k, v] of Object.entries(o.set || {})) vars[k] = (vars[k] || 0) + v;
-    waitingChoice = false;
-    choicesEl.hidden = true;
-    choicesEl.textContent = "";
-    stack.push({ list: o.then, i: 0 });
-    next();
-  }
-
-  async function title(text, bgName) {
-    dlg.hidden = true;
-    heroP.classList.remove("on");
-    blackout.classList.add("on");
-    await sleep(480);
-    titleCard.textContent = text;
-    titleCard.classList.add("on");
-    loadBg(layers[front], bgName);
-    await sleep(2300);
-    titleCard.classList.remove("on");
-    await sleep(520);
-    blackout.classList.remove("on");
-    await sleep(380);
-  }
-
-  function end() {
-    dlg.hidden = true;
-    heroP.classList.remove("on");
-    const list = $("#memory");
-    list.textContent = "";
-    for (const [k, label] of Object.entries(MEMORY)) {
-      if (!vars[k]) continue;
-      const li = document.createElement("li");
-      li.textContent = k === "legacy" ? label : `+${vars[k]} ${label}`;
-      list.append(li);
-    }
-    if (vars.paid) {
-      const li = document.createElement("li");
-      li.className = "paid";
-      li.textContent = `Bought a choice for ${vars.paid} gems`;
-      list.append(li);
-    }
-    endEl.hidden = false;
-    playing = false;
-  }
-
-  function run(p) {
-    busy = true;
-    p.then(() => { busy = false; next(); });
-  }
-
-  function next() {
-    while (stack.length) {
-      const top = stack[stack.length - 1];
-      if (top.i >= top.list.length) { stack.pop(); continue; }
-      const c = top.list[top.i++];
-      switch (c[0]) {
-        case "bg": run(setBg(c[1], c[2])); return;
-        case "show": show(c[1], c[2], c[3], c[4]); break;
-        case "hide": hide(c[1], c[2]); break;
-        case "n": line("n", null, null, c[1]); return;
-        case "t": line("t", "hero", c[1], c[2]); return;
-        case "say": line("say", c[1], c[2], c[3]); return;
-        case "choice": choose(c[1]); return;
-        case "title": run(title(c[1], c[2])); return;
-        case "end": end(); return;
-      }
-    }
-  }
-
-  function advance() {
-    if (!playing || busy || waitingChoice) return;
-    if (revealing) { finishType(); return; }
-    next();
-  }
-
-  let preloaded = false;
-  function preload() {
-    if (preloaded) return;
-    preloaded = true;
-    const imgs = ["hero_neutral", "hero_amused", "hero_surprised", "viktor_neutral", "viktor_smile", "viktor_thoughtful",
-      "samira_neutral", "samira_amused", "elias_neutral", "elias_amused", "elias_serious", "elias_surprised"]
-      .map((n) => `../assets/chars/${n}.webp`)
-      .concat(["balcony_night", "lift", "control_room"].map((n) => `../assets/bg/${n}.jpg`));
-    for (const src of imgs) { const i = new Image(); i.src = src; }
-  }
-
-  async function begin() {
-    preload();
-    blackout.classList.add("on");
-    await sleep(340);
-    startEl.hidden = true;
-    endEl.hidden = true;
-    for (const id of [...onStage.keys()]) { onStage.get(id).el.remove(); onStage.delete(id); }
-    heroP.classList.remove("on");
-    choicesEl.hidden = true;
-    dlg.hidden = true;
-    vars = {};
-    gems = 30;
-    gemCount.textContent = gems;
-    stack = [{ list: SCRIPT, i: 0 }];
-    waitingChoice = false;
-    playing = true;
-    next();
-    screen.focus({ preventScroll: true });
-  }
-
-  $("#play").addEventListener("click", (e) => { e.stopPropagation(); begin(); });
-  $("#replay").addEventListener("click", (e) => { e.stopPropagation(); begin(); });
-  screen.addEventListener("click", advance);
-  screen.addEventListener("keydown", (e) => {
-    if (e.target !== screen) return;
-    if (e.key === " " || e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); advance(); }
-  });
-  screen.addEventListener("pointerenter", preload, { once: true });
-
-  /* ── Видео-петли на странице играют, только пока видны ── */
-  const vidObserver = new IntersectionObserver((entries) => {
-    for (const { target: v, isIntersecting } of entries) {
-      if (isIntersecting) {
-        if (!v.src) { v.onplaying = () => v.classList.add("on"); v.src = v.dataset.src; }
-        const p = v.play();
-        if (p) p.catch(() => {});
-      } else if (v.src) v.pause();
-    }
-  }, { threshold: 0.35 });
-  document.querySelectorAll("video[data-src]").forEach((v) => vidObserver.observe(v));
-
-  /* ── Персонажи: другая эмоция при наведении или нажатии ── */
-  document.querySelectorAll("#cast li").forEach((li) => {
-    const img = li.querySelector("img");
-    const a = charSrc(li.dataset.id, li.dataset.a), b = charSrc(li.dataset.id, li.dataset.b);
-    const set = (alt) => { li.classList.toggle("alt", alt); img.src = alt ? b : a; };
-    li.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") set(true); });
-    li.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") set(false); });
-    li.addEventListener("click", () => set(!li.classList.contains("alt")));
-    new Image().src = b;
-  });
-})();
-</script>
+<script src="../assets/js/site.js?v=1"></script>
+<script src="../assets/js/story.en.js?v=1"></script>
+<script src="../assets/js/player.js?v=1"></script>
 </body>
 </html>
