@@ -13,11 +13,10 @@ Build Path `/`. Auto Deploy включён: каждый пуш в `main` вык
 
 ## Домен
 
-В приложении → Domains: домен сайта, Container Port `80`, HTTPS, сертификат Let's Encrypt.
-Перед этим A-запись домена (и `www`, если нужен) — на IP сервера Dokploy.
-
-После подключения домена поменяйте адрес `https://akshin.github.io/novella-game/` на новый
-в `og:url`, `og:image` и `hreflang` всех восьми `index.html`.
+`thronestudios.ink`, DNS в Namecheap (BasicDNS): A-записи `@` и `www` → `31.220.77.48`, сервер Dokploy.
+В приложении → Domains оба адреса: Container Port `80`, HTTPS, сертификат Let's Encrypt.
+С `www` nginx отвечает 301 на адрес без `www` (`deploy/nginx.conf`).
+Этот адрес прописан в `og:url`, `og:image` и `hreflang` всех `index.html`.
 
 ## Логотипы и картинки
 
