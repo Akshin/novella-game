@@ -6,6 +6,6 @@ COPY assets/ /usr/share/nginx/html/assets/
 COPY storyveil/ /usr/share/nginx/html/storyveil/
 COPY studio/ /usr/share/nginx/html/studio/
 COPY contacts/ /usr/share/nginx/html/contacts/
-COPY en/ /usr/share/nginx/html/en/
+COPY ru/ /usr/share/nginx/html/ru/
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1/ || exit 1

@@ -21,6 +21,7 @@
   }
 
   mount.innerHTML = `
+    <div class="ambient" aria-hidden="true"><img alt=""><img alt=""></div>
     <div class="phone">
       <div class="screen" tabindex="0" role="group" aria-label="${esc(T.screenLabel)}">
         <div class="bg show top"><img alt="" src="${ASSETS}bg/detector_cavern.jpg"><video muted loop playsinline preload="none" aria-hidden="true"></video></div>
@@ -68,7 +69,19 @@
   const layers = [...screen.querySelectorAll(".bg")].map((el) => ({ el, img: el.querySelector("img"), video: el.querySelector("video") }));
   let front = 0;
 
+  // Свет сцены за телефоном: две картинки, новая проявляется поверх старой.
+  const glow = [...mount.querySelectorAll(".ambient img")];
+  let glowFront = 0, glowName = "";
+  function ambient(name) {
+    if (name === glowName) return;
+    glowName = name;
+    const next = glow[1 - glowFront];
+    next.onload = () => { next.classList.add("on"); glow[glowFront].classList.remove("on"); glowFront = 1 - glowFront; };
+    next.src = `${ASSETS}bg/${name}.jpg`;
+  }
+
   function loadBg(layer, name) {
+    ambient(name);
     layer.img.src = `${ASSETS}bg/${name}.jpg`;
     const v = layer.video;
     v.classList.remove("on");

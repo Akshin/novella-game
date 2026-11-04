@@ -1,156 +1,157 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Throne Studios — студия интерактивных историй</title>
-<meta name="description" content="Throne Studios делает мобильные игры интерактивных историй. Наша первая игра StoryVeil выходит зимой на iOS и Android. Начало первой истории можно сыграть прямо на сайте.">
+<title>Throne Studios — interactive story games</title>
+<meta name="description" content="Throne Studios makes mobile interactive story games. Our first game, StoryVeil, launches this winter on iOS and Android. Play the opening of the first story right on the site.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Throne Studios">
-<meta property="og:title" content="Throne Studios — студия интерактивных историй">
-<meta property="og:description" content="Первая игра студии, StoryVeil, выходит зимой. Сыграйте начало истории «Интерференция» прямо в браузере.">
+<meta property="og:title" content="Throne Studios — interactive story games">
+<meta property="og:description" content="The studio's first game, StoryVeil, launches this winter. Play the opening of Interference right in your browser.">
 <meta property="og:url" content="https://thronestudios.ink/">
 <meta property="og:image" content="https://thronestudios.ink/assets/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="alternate" hreflang="ru" href="https://thronestudios.ink/">
-<link rel="alternate" hreflang="en" href="https://thronestudios.ink/en/">
-<meta name="theme-color" content="#06060a">
+<link rel="alternate" hreflang="en" href="https://thronestudios.ink/">
+<link rel="alternate" hreflang="ru" href="https://thronestudios.ink/ru/">
+<link rel="alternate" hreflang="x-default" href="https://thronestudios.ink/">
+<meta name="theme-color" content="#0f0b0a">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/brand/favicon-64.png">
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Unbounded:wght@300;400;500&display=swap">
-<link rel="stylesheet" href="assets/css/site.css?v=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans+SC:wght@500;700&family=Cormorant:ital,wght@0,500;0,600;0,700;1,600&display=swap">
+<link rel="stylesheet" href="assets/css/site.css?v=2">
 </head>
 <body>
-<a class="skip" href="#main">К содержанию</a>
+<a class="skip" href="#main">Skip to content</a>
 
 <header class="site-head">
   <div class="wrap">
-    <a class="brand" href="./" aria-label="Throne Studios — на главную"><img src="assets/brand/throne-studios-sm.png" alt="Throne Studios" width="455" height="152"></a>
-    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav" aria-label="Меню"><span></span></button>
-    <nav class="nav" id="nav" aria-label="Основное меню">
+    <a class="brand" href="./" aria-label="Throne Studios — home"><img src="assets/brand/throne-studios-sm.png" alt="Throne Studios" width="455" height="152"></a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menu"><span></span></button>
+    <nav class="nav" id="nav" aria-label="Main menu">
       <a href="storyveil/">StoryVeil</a>
-      <a href="studio/">Студия</a>
-      <a href="contacts/">Контакты</a>
-      <a class="lang" href="en/" hreflang="en" lang="en" aria-label="English version">EN</a>
-      <a class="btn primary" href="#play" data-play>Играть в демо</a>
+      <a href="studio/">Studio</a>
+      <a href="contacts/">Contact</a>
+      <a class="lang" href="ru/" hreflang="ru" lang="ru" aria-label="Русская версия">RU</a>
+      <a class="btn primary" href="#play" data-play>Play the demo</a>
     </nav>
   </div>
 </header>
 
 <main id="main">
-<!-- ═══════════════ Первый экран ═══════════════ -->
+<!-- ═══════════════ Hero ═══════════════ -->
 <section class="hero" aria-labelledby="hero-title">
-  <canvas id="fringes" aria-hidden="true"></canvas>
+  <canvas id="motes" aria-hidden="true"></canvas>
   <div class="wrap hero-grid">
     <div>
       <img class="hero-logo" src="assets/brand/throne-studios.png" alt="Throne Studios" width="910" height="304">
-      <p class="pill"><span class="live" aria-hidden="true"></span>StoryVeil выходит зимой</p>
-      <h1 id="hero-title">Делаем истории,<br class="br-wide"> в которых решаете вы</h1>
-      <p class="lead">Throne Studios — независимая студия мобильных игр. Наша первая игра, <strong>StoryVeil</strong>, — это интерактивные истории, где каждый выбор меняет сюжет и отношения с героями. Начало первой истории можно сыграть прямо здесь.</p>
+      <p class="pill"><span class="live" aria-hidden="true"></span>StoryVeil launches this winter</p>
+      <h1 id="hero-title">We make stories<br class="br-wide"> where you decide</h1>
+      <p class="lead">Throne Studios is an independent mobile game studio. Our first game, <strong>StoryVeil</strong>, is a collection of interactive stories where every choice changes the plot and your relationships with the characters. You can play the opening of the first story right here.</p>
       <div class="actions">
-        <a class="btn primary" href="#play" data-play>Играть в демо</a>
-        <a class="btn ghost" href="storyveil/">Об игре StoryVeil</a>
+        <a class="btn primary" href="#play" data-play>Play the demo</a>
+        <a class="btn ghost" href="storyveil/">About StoryVeil</a>
       </div>
       <ul class="facts">
-        <li><b>2026</b><span>год основания студии</span></li>
-        <li><b>Зима</b><span>выход StoryVeil</span></li>
-        <li><b>3 магазина</b><span>App Store, Google Play, RuStore</span></li>
+        <li><b>2026</b><span>the studio was founded</span></li>
+        <li><b>Winter</b><span>StoryVeil launch</span></li>
+        <li><b>3 stores</b><span>App Store, Google Play, RuStore</span></li>
       </ul>
     </div>
 
     <div class="device-col" id="play">
       <div data-player></div>
-      <p class="device-note">Фрагмент главы 1 истории «Интерференция». Выбор с <i>кристаллом</i> — особый: в игре он открывает дополнительные сцены.</p>
+      <p class="device-note">An excerpt from chapter 1 of Interference, translated from Russian. Choices marked with a <i>gem</i> are special: in the game they unlock extra scenes.</p>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ Игра ═══════════════ -->
+<!-- ═══════════════ Game ═══════════════ -->
 <section aria-labelledby="game-title">
   <div class="wrap">
     <div class="head-row">
       <div>
-        <p class="eyebrow">Наша игра</p>
-        <h2 id="game-title">Истории, которые вы проживаете сами</h2>
+        <p class="eyebrow">Our game</p>
+        <h2 id="game-title">Stories you live through yourself</h2>
       </div>
-      <p class="lead">Вы читаете историю, выбираете реплики и поступки, а игра запоминает каждое решение. От них зависят отношения с героями и то, какие сцены вы увидите дальше.</p>
+      <p class="lead">You read the story, choose what to say and do, and the game remembers every decision. Your choices shape your relationships with the characters and the scenes you'll see next.</p>
     </div>
 
     <div class="game-card">
-      <img class="app-icon" src="assets/brand/storyveil-icon.webp" alt="Иконка игры StoryVeil" width="512" height="512" loading="lazy">
+      <img class="app-icon" src="assets/brand/storyveil-icon.webp" alt="StoryVeil app icon" width="512" height="512" loading="lazy">
       <div>
         <h3>StoryVeil</h3>
-        <p>Мобильная игра интерактивных историй. Истории выходят главами, у каждой свой жанр, герои и мир. Первая — научная фантастика «Интерференция» о физике, памяти и выборе, после которого нельзя вернуться к прежнему ответу.</p>
+        <p>A mobile game of interactive stories. Stories come out in chapters, each with its own genre, characters and world. The first one, the sci-fi story Interference, is about physics, memory and a choice that leaves no way back to your old answer.</p>
         <ul class="tags">
-          <li>Интерактивные истории</li>
-          <li>Выборы с последствиями</li>
-          <li>Новые главы</li>
-          <li>iOS и Android</li>
+          <li>Interactive stories</li>
+          <li>Choices with consequences</li>
+          <li>New chapters</li>
+          <li>iOS and Android</li>
         </ul>
-        <ul class="stores" aria-label="Магазины приложений">
-          <li><span class="store soon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7a4.6 4.6 0 0 0-3.6-1.9c-1.5-.2-3 .9-3.7.9-.8 0-2-.9-3.2-.9a4.8 4.8 0 0 0-4 2.5c-1.7 3-.4 7.3 1.2 9.7.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4a10 10 0 0 0 1.4-2.8 4.3 4.3 0 0 1-2.5-3.8ZM14 5.4a4.3 4.3 0 0 0 1-3.2 4.5 4.5 0 0 0-2.9 1.5 4.2 4.2 0 0 0-1 3.1A3.7 3.7 0 0 0 14 5.4Z"/></svg><span><small>Скоро в</small><b>App Store</b></span></span></li>
-          <li><span class="store soon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#62e6bd" d="M3.6 2.3 13.3 12l-9.7 9.7c-.4-.2-.6-.6-.6-1.1V3.4c0-.5.2-.9.6-1.1Z"/><path fill="#a78bff" d="m16.6 15.3-3.3-3.3 3.3-3.3 3.9 2.2c1.1.6 1.1 1.6 0 2.2l-3.9 2.2Z"/><path fill="#8fd0e6" d="M16.6 8.7 13.3 12 3.6 2.3c.3-.2.8-.2 1.3.1l11.7 6.3Z"/><path fill="#eceaf4" d="M16.6 15.3 4.9 21.6c-.5.3-1 .3-1.3.1l9.7-9.7 3.3 3.3Z"/></svg><span><small>Скоро в</small><b>Google Play</b></span></span></li>
-          <li><span class="store soon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="#2b6cf6"/><path fill="#fff" d="M7 7h5.2c2.2 0 3.6 1.2 3.6 3.1 0 1.4-.8 2.4-2 2.8l2.4 4.1h-2.6l-2.1-3.8H9.3V17H7V7Zm2.3 2v3.2h2.8c1 0 1.5-.6 1.5-1.6S13.1 9 12.1 9H9.3Z"/></svg><span><small>Скоро в</small><b>RuStore</b></span></span></li>
+        <ul class="stores" aria-label="App stores">
+          <li><span class="store soon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7a4.6 4.6 0 0 0-3.6-1.9c-1.5-.2-3 .9-3.7.9-.8 0-2-.9-3.2-.9a4.8 4.8 0 0 0-4 2.5c-1.7 3-.4 7.3 1.2 9.7.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4a10 10 0 0 0 1.4-2.8 4.3 4.3 0 0 1-2.5-3.8ZM14 5.4a4.3 4.3 0 0 0 1-3.2 4.5 4.5 0 0 0-2.9 1.5 4.2 4.2 0 0 0-1 3.1A3.7 3.7 0 0 0 14 5.4Z"/></svg><span><small>Coming to</small><b>App Store</b></span></span></li>
+          <li><span class="store soon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#f3cf8e" d="M3.6 2.3 13.3 12l-9.7 9.7c-.4-.2-.6-.6-.6-1.1V3.4c0-.5.2-.9.6-1.1Z"/><path fill="#e2704e" d="m16.6 15.3-3.3-3.3 3.3-3.3 3.9 2.2c1.1.6 1.1 1.6 0 2.2l-3.9 2.2Z"/><path fill="#f0a75b" d="M16.6 8.7 13.3 12 3.6 2.3c.3-.2.8-.2 1.3.1l11.7 6.3Z"/><path fill="#eceaf4" d="M16.6 15.3 4.9 21.6c-.5.3-1 .3-1.3.1l9.7-9.7 3.3 3.3Z"/></svg><span><small>Coming to</small><b>Google Play</b></span></span></li>
+          <li><span class="store soon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="#2b6cf6"/><path fill="#fff" d="M7 7h5.2c2.2 0 3.6 1.2 3.6 3.1 0 1.4-.8 2.4-2 2.8l2.4 4.1h-2.6l-2.1-3.8H9.3V17H7V7Zm2.3 2v3.2h2.8c1 0 1.5-.6 1.5-1.6S13.1 9 12.1 9H9.3Z"/></svg><span><small>Coming to</small><b>RuStore</b></span></span></li>
         </ul>
-        <div class="actions"><a class="link-arrow" href="storyveil/">Подробнее об игре</a></div>
+        <div class="actions"><a class="link-arrow" href="storyveil/">More about the game</a></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ Первая история ═══════════════ -->
+<!-- ═══════════════ First story ═══════════════ -->
 <section aria-labelledby="story-title">
   <div class="wrap">
     <div class="head-row">
       <div>
-        <p class="eyebrow">Первая история</p>
-        <h2 id="story-title">«Интерференция»</h2>
+        <p class="eyebrow">First story</p>
+        <h2 id="story-title">Interference</h2>
       </div>
-      <p class="lead">2046 год, ЦЕРН. Новый коллайдер ASTERION получает данные экспериментов, которых ещё не было, и кадры с людьми, которых уже нет. Физику Мире Коваль предстоит понять, что именно она видит, и решить, кому можно доверять.</p>
+      <p class="lead">CERN, 2046. The new ASTERION collider receives data from experiments that haven't happened yet, and footage of people who are already gone. Physicist Mira Koval has to work out what exactly she is seeing, and decide whom she can trust.</p>
     </div>
 
     <div class="sub-head">
-      <h3>Персонажи</h3>
-      <p>Наведите или нажмите на героя, чтобы увидеть другую эмоцию.</p>
+      <h3>Characters</h3>
+      <p>Hover over or tap a character to see another emotion.</p>
     </div>
     <ul class="cast">
-      <li data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Мира Коваль" src="assets/chars/hero_neutral.webp"></div><div class="who"><b>Мира Коваль</b><span>физик ASTERION, главная героиня</span></div></li>
-      <li data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Элиас Хартманн" src="assets/chars/elias_neutral.webp"></div><div class="who"><b>Элиас Хартманн</b><span>руководитель группы</span></div></li>
-      <li data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Адриан Восс" src="assets/chars/adrian_neutral.webp"></div><div class="who"><b>Адриан Восс</b><span>Helix Quantum Systems</span></div></li>
-      <li data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Самира Рахаль" src="assets/chars/samira_neutral.webp"></div><div class="who"><b>Самира Рахаль</b><span>инженер Q-Lattice</span></div></li>
-      <li data-a="thoughtful" data-b="smile"><div class="fig-wrap"><img loading="lazy" alt="Виктор Коваль" src="assets/chars/viktor_thoughtful.webp"></div><div class="who"><b>Виктор Коваль</b><span>дедушка Миры</span></div></li>
+      <li data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Mira Koval" src="assets/chars/hero_neutral.webp"></div><div class="who"><b>Mira Koval</b><span>ASTERION physicist, the heroine</span></div></li>
+      <li data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Elias Hartmann" src="assets/chars/elias_neutral.webp"></div><div class="who"><b>Elias Hartmann</b><span>group lead</span></div></li>
+      <li data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Adrian Voss" src="assets/chars/adrian_neutral.webp"></div><div class="who"><b>Adrian Voss</b><span>Helix Quantum Systems</span></div></li>
+      <li data-a="neutral" data-b="amused"><div class="fig-wrap"><img loading="lazy" alt="Samira Rahal" src="assets/chars/samira_neutral.webp"></div><div class="who"><b>Samira Rahal</b><span>Q-Lattice engineer</span></div></li>
+      <li data-a="thoughtful" data-b="smile"><div class="fig-wrap"><img loading="lazy" alt="Viktor Koval" src="assets/chars/viktor_thoughtful.webp"></div><div class="who"><b>Viktor Koval</b><span>Mira's grandfather</span></div></li>
     </ul>
-    <div class="actions"><a class="link-arrow" href="storyveil/#story">Об истории и локациях</a></div>
+    <div class="actions"><a class="link-arrow" href="storyveil/#story">About the story and locations</a></div>
   </div>
 </section>
 
-<!-- ═══════════════ Студия ═══════════════ -->
+<!-- ═══════════════ Studio ═══════════════ -->
 <section aria-labelledby="studio-title">
   <div class="wrap">
     <div class="head-row">
       <div>
-        <p class="eyebrow">Студия</p>
-        <h2 id="studio-title">Двое друзей, которые живут играми</h2>
+        <p class="eyebrow">Studio</p>
+        <h2 id="studio-title">Made by people who live and breathe games</h2>
       </div>
       <div>
-        <p class="lead">Throne Studios основали в начале 2026 года разработчик игр и автор игровых историй. Мы делаем то, во что хотим играть сами: истории с характером, в которых у выбора есть вес.</p>
-        <div class="actions"><a class="link-arrow" href="studio/">О студии</a></div>
+        <p class="lead">Throne Studios was founded in early 2026 by people deeply immersed in games. We combine modern technology with deep, well-crafted stories, and make the games we want to play ourselves.</p>
+        <div class="actions"><a class="link-arrow" href="studio/">About the studio</a></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ Финал ═══════════════ -->
+<!-- ═══════════════ Finale ═══════════════ -->
 <section class="finale" aria-labelledby="finale-title">
   <div class="finale-bg" aria-hidden="true" style="background-image: url('assets/bg/detector_cavern.jpg')"></div>
   <div class="wrap">
-    <p class="eyebrow">На связи</p>
-    <h2 id="finale-title">Хотите сотрудничать или просто поздороваться?</h2>
-    <p>Игрокам, прессе и партнёрам: напишите нам, и мы ответим.</p>
-    <div class="actions"><a class="btn primary" href="contacts/">Контакты</a></div>
+    <p class="eyebrow">Get in touch</p>
+    <h2 id="finale-title">Want to work together or just say hi?</h2>
+    <p>Players, press and partners: write to us, and we'll get back to you.</p>
+    <div class="actions"><a class="btn primary" href="contacts/">Contact</a></div>
   </div>
 </section>
 </main>
@@ -160,30 +161,30 @@
     <div class="foot-grid">
       <div>
         <img src="assets/brand/throne-studios-sm.png" alt="Throne Studios" width="455" height="152" loading="lazy">
-        <p>Независимая студия интерактивных историй. StoryVeil выходит зимой на iOS и Android.</p>
+        <p>An independent studio of interactive stories. StoryVeil launches this winter on iOS and Android.</p>
       </div>
       <div>
-        <h2>Сайт</h2>
+        <h2>Site</h2>
         <ul>
           <li><a href="storyveil/">StoryVeil</a></li>
-          <li><a href="studio/">Студия</a></li>
-          <li><a href="contacts/">Контакты</a></li>
+          <li><a href="studio/">Studio</a></li>
+          <li><a href="contacts/">Contact</a></li>
         </ul>
       </div>
       <div>
-        <h2>Соцсети</h2>
-        <ul data-socials="footer"><li class="muted">Скоро появятся</li></ul>
+        <h2>Social</h2>
+        <ul data-socials="footer"><li class="muted">Coming soon</li></ul>
       </div>
     </div>
     <div class="foot-base">
       <span>© 2026 Throne Studios</span>
-      <span>StoryVeil — игра Throne Studios</span>
+      <span>StoryVeil is a Throne Studios game</span>
     </div>
   </div>
 </footer>
 
-<script src="assets/js/site.js?v=1"></script>
-<script src="assets/js/story.ru.js?v=1"></script>
-<script src="assets/js/player.js?v=1"></script>
+<script src="assets/js/site.js?v=2"></script>
+<script src="assets/js/story.en.js?v=2"></script>
+<script src="assets/js/player.js?v=2"></script>
 </body>
 </html>

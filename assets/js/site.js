@@ -70,59 +70,59 @@ const SITE_CONTACTS = {
     addEventListener("keydown", (e) => { if (e.key === "Escape") setOpen(false); });
   }
 
-  /* ── Интерференция на первом экране: две точки-источника, одна идёт за курсором ── */
-  const cv = $("#fringes");
+  /* ── Искры на первом экране: тёплые пылинки медленно поднимаются в свете сцены ── */
+  const cv = $("#motes");
   if (cv) {
     const host = cv.parentElement;
     const ctx = cv.getContext("2d");
-    let W = 0, H = 0, img;
+    let W = 0, H = 0, dpr = 1, motes = [];
+    const rand = (a, b) => a + Math.random() * (b - a);
+    const spawn = (anyY) => ({
+      x: rand(0, W), y: anyY ? rand(0, H) : H + rand(0, 40),
+      r: rand(0.5, 2.1), vy: rand(6, 22), sway: rand(6, 26), phase: rand(0, Math.PI * 2),
+      speed: rand(0.2, 0.7), hue: rand(22, 42), life: rand(0.35, 1),
+    });
     const size = () => {
       const r = host.getBoundingClientRect();
-      W = 190;
-      H = Math.max(80, Math.round((W * r.height) / Math.max(1, r.width)));
-      cv.width = W; cv.height = H;
-      img = ctx.createImageData(W, H);
+      dpr = Math.min(2, devicePixelRatio || 1);
+      W = r.width; H = r.height;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.round(Math.min(90, (W * H) / 14000));
+      motes = Array.from({ length: count }, () => spawn(true));
     };
-    let px = 0.32, py = 0.62, tx = px, ty = py, t = 0;
-    host.addEventListener("pointermove", (e) => {
-      const r = host.getBoundingClientRect();
-      tx = (e.clientX - r.left) / r.width;
-      ty = (e.clientY - r.top) / r.height;
-    });
-    const k = (2 * Math.PI) / 7.2;
-    const draw = () => {
-      px += (tx - px) * 0.05; py += (ty - py) * 0.05;
-      const narrow = innerWidth <= 860;
-      const s1x = W * (narrow ? 0.5 : 0.74) + Math.cos(t * 0.13) * W * 0.03;
-      const s1y = H * (narrow ? 0.72 : 0.5) + Math.sin(t * 0.11) * H * 0.04;
-      const s2x = W * px, s2y = H * py;
-      const d = img.data;
-      let o = 0;
-      for (let y = 0; y < H; y++) {
-        for (let x = 0; x < W; x++) {
-          const d1 = Math.hypot(x - s1x, y - s1y);
-          const d2 = Math.hypot(x - s2x, y - s2y);
-          const a = Math.cos(k * d1 - t) / (1 + d1 * 0.012) + Math.cos(k * d2 - t) / (1 + d2 * 0.012);
-          let I = a * a * 0.32;
-          if (I > 1) I = 1;
-          // от тёмно-фиолетового к мятному — цвета вуали StoryVeil
-          d[o] = 52 + 46 * I; d[o + 1] = 34 + 196 * I; d[o + 2] = 110 + 79 * I; d[o + 3] = 26 + I * 150;
-          o += 4;
-        }
+    let t = 0;
+    const draw = (dt) => {
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = "lighter";
+      for (const m of motes) {
+        m.y -= m.vy * dt;
+        const x = m.x + Math.sin(t * m.speed + m.phase) * m.sway;
+        if (m.y < -20) Object.assign(m, spawn(false));
+        // мерцание, как у угольков: яркость дышит, у верха искра гаснет
+        const fade = Math.min(1, m.y / (H * 0.35));
+        const a = m.life * fade * (0.55 + 0.45 * Math.sin(t * 2.3 * m.speed + m.phase * 3));
+        if (a <= 0) continue;
+        const g = ctx.createRadialGradient(x, m.y, 0, x, m.y, m.r * 5);
+        g.addColorStop(0, `hsla(${m.hue}, 100%, 72%, ${a})`);
+        g.addColorStop(1, `hsla(${m.hue}, 100%, 55%, 0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(x, m.y, m.r * 5, 0, Math.PI * 2); ctx.fill();
       }
-      ctx.putImageData(img, 0, 0);
     };
     size();
-    draw();
-    addEventListener("resize", () => { size(); draw(); });
+    draw(0);
+    addEventListener("resize", () => { size(); draw(0); });
     if (!reduce) {
       let visible = true, running = false, last = 0;
       const loop = (now) => {
         if (!visible || document.hidden) { running = false; return; }
-        if (now - last > 33) { t += 0.11; draw(); last = now; }
+        const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
+        last = now; t += dt;
+        draw(dt);
         requestAnimationFrame(loop);
       };
-      const kick = () => { if (!running && visible && !document.hidden) { running = true; requestAnimationFrame(loop); } };
+      const kick = () => { if (!running && visible && !document.hidden) { running = true; last = 0; requestAnimationFrame(loop); } };
       new IntersectionObserver(([e]) => { visible = e.isIntersecting; kick(); }).observe(host);
       document.addEventListener("visibilitychange", kick);
     }
