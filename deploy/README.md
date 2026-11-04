@@ -4,6 +4,12 @@ Dokploy, проект **Throne Studios**, только окружение `produ
 Приложение `website`: GitHub `Akshin/novella-game`, ветка `main`, Build Type — Dockerfile (`Dockerfile` в корне),
 Build Path `/`. Auto Deploy включён: каждый пуш в `main` выкатывает сайт.
 
+Пуш доходит до Dokploy вебхуком GitHub-приложения Dokploy (то же, что у Vekas). Деплой стартует
+через пару секунд после пуша, сборка занимает 5–15 секунд, а потом ещё несколько секунд
+меняется контейнер — проверять сайт раньше чем через полминуты бессмысленно.
+Если в Dokploy → website → Deployments нового деплоя нет, значит, вебхук не дошёл
+(GitHub изредка теряет доставку): нажмите Deploy вручную.
+
 Образ — `nginx:1.27-alpine` с файлами сайта, сборки нет. Настройки nginx — `deploy/nginx.conf`:
 
 - страницы отдаются с `Cache-Control: no-cache`, правки видны сразу;
