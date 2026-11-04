@@ -324,7 +324,7 @@ section { padding-block: var(--section); border-top: 1px solid var(--line); }
   border: 1px solid var(--line); border-radius: 24px;
   background: radial-gradient(120% 140% at 0% 0%, rgba(240,167,91,.09), transparent 55%), radial-gradient(120% 140% at 100% 100%, rgba(226,112,78,.1), transparent 55%), var(--hull);
 }
-.app-icon { width: 100%; max-width: 300px; aspect-ratio: 1; border-radius: 22.5%; box-shadow: 0 30px 70px -24px rgba(0,0,0,.95), 0 0 90px -20px rgba(226,112,78,.45); }
+.app-icon { width: 100%; max-width: 300px; height: auto; aspect-ratio: 1; object-fit: cover; justify-self: center; border-radius: 22.5%; box-shadow: 0 30px 70px -24px rgba(0,0,0,.95), 0 0 90px -20px rgba(226,112,78,.45); }
 .game-card h3 { font: 600 clamp(2.3rem, 4vw, 3.2rem)/1 var(--display); }
 .game-card > div > p { margin: 16px 0 0; color: var(--haze); max-width: 56ch; }
 .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 0; padding: 0; list-style: none; }
