@@ -128,6 +128,67 @@ const SITE_CONTACTS = {
     }
   }
 
+  /* ── «Как это устроено»: мини-сцены ── */
+  // Решения: выбранный ответ подсвечивается, остальные гаснут; повторное нажатие сбрасывает.
+  $$('[data-viz="choices"]').forEach((box) => {
+    const note = $(".vz-note", box), hint = note.textContent;
+    const buttons = $$(".vz-choice", box);
+    buttons.forEach((b) => b.addEventListener("click", () => {
+      const again = b.classList.contains("picked");
+      buttons.forEach((x) => x.classList.toggle("picked", !again && x === b));
+      box.classList.toggle("chosen", !again);
+      note.textContent = again ? hint : b.dataset.note;
+    }));
+  });
+
+  // Отношения: герой улыбается, шкала растёт.
+  $$('[data-viz="rel"] .vz-person').forEach((b) => {
+    const img = $("img", b), a = img.getAttribute("src"), alt = b.dataset.b;
+    new Image().src = alt;
+    const set = (up) => { b.classList.toggle("up", up); img.src = up ? alt : a; };
+    b.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") set(true); });
+    b.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") set(false); });
+    b.addEventListener("click", () => set(!b.classList.contains("up")));
+  });
+
+  // Особый выбор: 30 кристаллов → 10, сцена открыта; повторное нажатие возвращает как было.
+  $$('[data-viz="premium"]').forEach((box) => {
+    const btn = $(".vz-choice", box), gems = $(".vz-gems", box), count = $("b", gems);
+    const note = $(".vz-note", box), hint = note.textContent;
+    let raf = 0;
+    btn.addEventListener("click", () => {
+      const done = !box.classList.contains("done");
+      box.classList.toggle("done", done);
+      note.textContent = done ? note.dataset.done : hint;
+      gems.classList.toggle("bump", false); void gems.offsetWidth; gems.classList.toggle("bump", true);
+      cancelAnimationFrame(raf);
+      const from = +count.textContent, to = done ? 10 : 30, t0 = performance.now();
+      const tick = (now) => {
+        const k = Math.min(1, (now - t0) / 500);
+        count.textContent = Math.round(from + (to - from) * k);
+        if (k < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    });
+  });
+
+  // Живая сцена: реплика печатается по буквам, пока блок на экране, и повторяется.
+  if (!reduce) $$('[data-viz="live"] [data-type]').forEach((el) => {
+    const text = el.dataset.type;
+    let i = 0, timer = 0, on = false;
+    const step = () => {
+      if (!on) return;
+      i = i >= text.length ? 0 : i + 1;
+      el.textContent = text.slice(0, i);
+      timer = setTimeout(step, i >= text.length ? 2600 : 28);
+    };
+    new IntersectionObserver(([e]) => {
+      on = e.isIntersecting;
+      clearTimeout(timer);
+      if (on) { i = 0; step(); }
+    }, { threshold: 0.4 }).observe(el);
+  });
+
   /* ── Видео-петли локаций играют, только пока видны ── */
   const vids = $$("video[data-src]");
   if (vids.length) {

@@ -348,6 +348,102 @@ section { padding-block: var(--section); border-top: 1px solid var(--line); }
 .grid-list h3 { font: 600 1.5rem/1.2 var(--display); }
 .grid-list p { margin: 10px 0 0; font-size: 15.5px; line-height: 1.55; color: var(--haze); }
 
+/* ── «Как это устроено»: мини-сцены в стиле интерфейса игры ── */
+.features > li { display: flex; flex-direction: column; }
+.viz {
+  position: relative; isolation: isolate; overflow: hidden;
+  height: 210px; margin: 0 0 22px; padding: 16px;
+  border: 1px solid var(--line); border-radius: 18px; background: var(--hull-hi);
+  font-family: var(--body); list-style: none;
+  transition: border-color .3s, transform .3s cubic-bezier(.2,.8,.2,1);
+}
+.features > li:hover .viz { border-color: rgba(240,167,91,.35); transform: translateY(-3px); }
+.viz .vz-note { position: relative; margin: 0; font: 500 13px/1.35 var(--label); text-transform: lowercase; letter-spacing: .06em; color: var(--haze); transition: color .3s; }
+.vz-choice {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;
+  padding: 10px 14px; border-radius: 12px; cursor: pointer; text-align: left;
+  background: rgba(34,26,46,.92); border: 1px solid rgba(255,255,255,.22);
+  color: var(--g-text); font: 600 14px/1.25 var(--body);
+  transition: opacity .3s, transform .3s, background-color .2s, border-color .2s;
+}
+.vz-choice:hover { background: rgba(46,36,64,.98); }
+.vz-choice.premium { background: var(--g-premium); border: 1.6px solid var(--g-gem); }
+.vz-choice .price { display: flex; align-items: center; gap: 4px; color: var(--g-gem); font-weight: 800; }
+.vz-choice svg { width: 14px; height: 14px; }
+
+/* 1. Решения: сцена в зале управления и два ответа */
+.viz-choices { display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; }
+.vz-bgimg { position: absolute; inset: 0; z-index: -2; background: center 35% / cover; }
+.viz-choices::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, rgba(15,11,10,.92) 30%, rgba(15,11,10,.3)); }
+.viz .vz-line { margin: 0 0 auto; font: italic 400 14px/1.4 var(--body); color: rgba(244,238,248,.85); }
+.viz-choices.chosen .vz-choice:not(.picked) { opacity: .25; transform: scale(.97); }
+.viz-choices .vz-choice.picked { border-color: var(--amber); box-shadow: 0 0 0 3px rgba(240,167,91,.18); }
+.viz-choices.chosen .vz-note { color: var(--amber); }
+
+/* 2. Отношения: портреты и шкалы */
+.viz-rel { display: flex; flex-direction: column; justify-content: space-between; background: radial-gradient(120% 90% at 50% 0%, rgba(226,112,78,.16), transparent 60%), var(--hull-hi); }
+.vz-people { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.vz-person { display: grid; justify-items: center; gap: 8px; padding: 6px 0; border: 0; background: none; cursor: pointer; color: var(--frost); }
+.vz-face { position: relative; width: 74px; height: 74px; border-radius: 50%; overflow: hidden; background: #2a201b; border: 2px solid var(--line); transition: border-color .3s, transform .3s; }
+.vz-face img { position: absolute; width: 250%; max-width: none; left: -76%; top: -34%; }
+.vz-person:hover .vz-face, .vz-person.up .vz-face { border-color: var(--amber); transform: translateY(-3px); }
+.vz-name { font: 600 1.1rem/1 var(--display); }
+.vz-bar { width: 100%; height: 5px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; }
+.vz-bar i { display: block; height: 100%; width: calc(var(--lvl) * 100%); border-radius: inherit; background: var(--warm); transition: width .6s cubic-bezier(.2,.8,.2,1); }
+.vz-person.up .vz-bar i { width: calc(min(1, var(--lvl) + .25) * 100%); }
+
+/* 3. Особый выбор: кристаллы списываются, сцена открывается */
+.viz-premium { display: flex; flex-direction: column; justify-content: center; gap: 14px; background: radial-gradient(90% 80% at 50% 45%, rgba(79,209,232,.14), transparent 70%), #17121f; }
+.vz-gems { position: absolute; top: 14px; right: 14px; display: flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 99px; background: rgba(10,14,22,.6); border: 1px solid rgba(255,255,255,.12); font: 700 13px/1 var(--body); color: var(--g-text); }
+.vz-gems svg { width: 13px; height: 13px; color: var(--g-gem); }
+.vz-gems.bump { animation: bump .5s; }
+.viz-premium .vz-choice.premium { animation: glow 2.4s ease-in-out infinite; }
+@keyframes glow { 50% { box-shadow: 0 0 22px -4px rgba(79,209,232,.55); } }
+.viz-premium.done .vz-choice.premium { animation: none; background: rgba(79,209,232,.16); }
+.viz-premium.done .vz-note { color: var(--g-gem); }
+
+/* 4. Живая сцена: видео-фон, героиня и печатающийся текст */
+.viz-live { padding: 0; }
+.viz-live .vz-bg, .viz-live video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.viz-live video { opacity: 0; transition: opacity .6s; }
+.viz-live video.on { opacity: 1; }
+.vz-fig { position: absolute; right: -4%; bottom: -52%; width: 46%; z-index: -1; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+.features > li:hover .vz-fig { transform: translateX(-6%); }
+.viz .vz-dlg { position: absolute; left: 10px; right: 10px; bottom: 10px; margin: 0; min-height: 64px; padding: 16px 12px 10px; border-radius: 12px; background: var(--g-surface); border: 1.5px solid rgba(217,138,92,.7); color: var(--g-text); font: 400 13px/1.4 var(--body); }
+.vz-dlg b { position: absolute; left: 10px; top: -10px; padding: 3px 9px; border-radius: 8px; background: #d98a5c; color: #fff; font: 700 11px/1.2 var(--body); }
+
+/* 5. Главы: список, новая подсвечена */
+.viz-chapters { display: grid; align-content: center; gap: 8px; margin-top: 0; }
+.viz-chapters li { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,.02); transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .3s; }
+.features > li:hover .viz-chapters li { transform: translateX(6px); }
+.features > li:hover .viz-chapters li:nth-child(2) { transition-delay: .05s; }
+.features > li:hover .viz-chapters li:nth-child(3) { transition-delay: .1s; }
+.vz-num { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: var(--hull); font: 600 1.2rem/1 var(--display); color: var(--amber); }
+.vz-title { flex: 1; min-width: 0; }
+.vz-title b { display: block; font: 600 14px/1.2 var(--body); }
+.vz-title small { display: block; font-size: 12px; color: var(--haze); }
+.viz-chapters em { font: 500 12px/1 var(--label); text-transform: lowercase; letter-spacing: .06em; font-style: normal; color: var(--haze); }
+.viz-chapters em svg { width: 15px; height: 15px; }
+.viz-chapters .new { border-color: rgba(240,167,91,.45); background: rgba(240,167,91,.07); }
+.viz-chapters .new em { padding: 5px 9px; border-radius: 99px; background: var(--warm); color: var(--void); font-weight: 700; animation: live 2.4s ease-out infinite; }
+.viz-chapters .lock { opacity: .55; }
+
+/* 6. Прогресс: два устройства и точка синхронизации между ними */
+.viz-sync { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 18px 20px 40px; }
+.vz-device { display: grid; justify-items: center; gap: 8px; }
+.vz-device small { font: 500 12px/1 var(--label); text-transform: lowercase; letter-spacing: .06em; color: var(--haze); }
+.vz-device .vz-shot { display: block; border: 3px solid #3b2d25; background: center / cover; box-shadow: 0 12px 30px -14px #000; position: relative; overflow: hidden; }
+.vz-device .vz-shot::after { content: ""; position: absolute; left: 10%; right: 10%; bottom: 8%; height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--amber) 64%, rgba(255,255,255,.25) 64%); }
+.vz-phone .vz-shot { width: 58px; height: 112px; border-radius: 12px; }
+.vz-tablet .vz-shot { width: 104px; height: 128px; border-radius: 12px; }
+.vz-link { position: relative; height: 40px; }
+.vz-link::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1.5px dashed rgba(240,167,91,.45); }
+.vz-link i { position: absolute; top: 50%; left: 0; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 12px var(--amber); animation: sync 2.6s ease-in-out infinite; }
+@keyframes sync { 0% { left: 0; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { left: calc(100% - 9px); opacity: 0; } }
+.vz-cloud { position: absolute; left: 50%; top: -18px; translate: -50% 0; color: var(--amber); }
+.vz-cloud svg { width: 24px; height: 24px; }
+.viz-sync .vz-note { position: absolute; left: 0; right: 0; bottom: 14px; text-align: center; }
+
 /* ── Локации и персонажи ──────────────────────────── */
 .reel {
   display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
