@@ -24,7 +24,7 @@
     <div class="ambient" aria-hidden="true"><img alt=""><img alt=""></div>
     <div class="phone">
       <div class="screen" tabindex="0" role="group" aria-label="${esc(T.screenLabel)}">
-        <div class="bg show top"><img alt="" src="${ASSETS}bg/detector_cavern.jpg"><video muted loop playsinline preload="none" aria-hidden="true"></video></div>
+        <div class="bg show top"><img alt="" src="${ASSETS}bg/cover.jpg"><video muted loop playsinline preload="none" aria-hidden="true"></video></div>
         <div class="bg"><img alt=""><video muted loop playsinline preload="none" aria-hidden="true"></video></div>
         <div class="stage"></div>
         <div class="hero-portrait"><img alt=""></div>
@@ -91,10 +91,11 @@
     if (p) p.catch(() => {});
   }
 
-  loadBg(layers[0], "detector_cavern");
+  // Стартовый экран — обложка StoryVeil без видео; первый фон сцены ставит сам сценарий.
+  ambient("cover");
   new IntersectionObserver(([e]) => {
     for (const l of layers) {
-      if (!l.el.classList.contains("show")) continue;
+      if (!l.el.classList.contains("show") || !l.video.src) continue;
       if (e.isIntersecting) { const p = l.video.play(); if (p) p.catch(() => {}); } else l.video.pause();
     }
   }).observe(screen);
@@ -320,7 +321,7 @@
     const imgs = ["hero_neutral", "hero_amused", "hero_surprised", "viktor_neutral", "viktor_smile", "viktor_thoughtful",
       "samira_neutral", "samira_amused", "elias_neutral", "elias_amused", "elias_serious", "elias_surprised"]
       .map((n) => `${ASSETS}chars/${n}.webp`)
-      .concat(["balcony_night", "lift", "control_room"].map((n) => `${ASSETS}bg/${n}.jpg`));
+      .concat(["balcony_night", "lift", "detector_cavern", "control_room"].map((n) => `${ASSETS}bg/${n}.jpg`));
     for (const src of imgs) { const i = new Image(); i.src = src; }
   }
 

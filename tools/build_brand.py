@@ -8,6 +8,7 @@
 
 throne_studios.jpg — белый логотип на чёрном: яркость становится прозрачностью.
 storyveil_icon.jpg — иконка приложения на белом: обрезаем по рамке и скругляем углы.
+storyveil_key_art.jpg — обложка с первого слайда питч-дека: стартовый экран демо в телефоне.
 """
 
 from pathlib import Path
@@ -22,6 +23,8 @@ OUT = ROOT / "assets/brand"
 THRONE_BOX = (250, 232, 1160, 536)
 T_BOX = (266, 248, 421, 400)
 ICON_BOX = (82, 92, 942, 952)
+# Сдвиг героев вниз на обложке: сверху статус-бар и плашки «Глава 1» и кристаллы.
+COVER_TOP = 64
 
 
 def white_on_alpha(img: Image.Image, lo: int = 18, hi: int = 225) -> Image.Image:
@@ -71,6 +74,33 @@ def storyveil() -> Image.Image:
     return icon
 
 
+def cover() -> None:
+    """Стартовый экран демо (assets/bg/cover.jpg) под размер телефона, как остальные фоны.
+
+    Сверху трое героев целиком, низ уходит в размытую ту же картинку:
+    там стартовый экран кладёт затемнение и текст.
+    """
+    W, H = 540, 1174
+    art = Image.open(SRC / "storyveil_key_art.jpg").convert("RGB")
+    back = art.resize((round(art.width * H / art.height), H), Image.LANCZOS)
+    left = (back.width - W) // 2
+    back = back.crop((left, 0, left + W, H)).filter(ImageFilter.GaussianBlur(36))
+    img = Image.blend(back, Image.new("RGB", (W, H), (6, 12, 24)), 0.5).convert("RGBA")
+
+    # Лица героев на исходнике лежат по ширине от 115 до 835 px: столько и помещаем в экран.
+    scale = W / 720
+    fg = art.resize((round(art.width * scale), round(art.height * scale)), Image.LANCZOS).convert("RGBA")
+    fx, fy = round(-475 * scale + W / 2), COVER_TOP
+    top, bottom = 70, round(fg.height * 0.3)
+    alpha = Image.new("L", (1, fg.height))
+    for y in range(fg.height):
+        a = min(1.0, y / top, (fg.height - y) / bottom)
+        alpha.putpixel((0, y), round(255 * a * a * (3 - 2 * a)))
+    fg.putalpha(alpha.resize(fg.size))
+    img.alpha_composite(fg, (fx, fy))
+    img.convert("RGB").save(ROOT / "assets/bg/cover.jpg", "JPEG", quality=82, optimize=True)
+
+
 def og(logo: Image.Image, icon: Image.Image) -> None:
     """Превью ссылки: зал детектора, логотип студии и иконка игры."""
     W, H = 1200, 630
@@ -99,3 +129,4 @@ def og(logo: Image.Image, icon: Image.Image) -> None:
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     og(throne(), storyveil())
+    cover()

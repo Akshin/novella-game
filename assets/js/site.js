@@ -5,7 +5,7 @@
    контактов на обоих языках берут их отсюда. Пустая строка — значит «скоро».
    Пример: email: "hello@thronestudios.com", url: "https://t.me/thronestudios" */
 const SITE_CONTACTS = {
-  email: "",
+  email: "alo@thronestudios.ink",
   social: [
     { id: "telegram", name: "Telegram", url: "" },
     { id: "vk", name: "VK", url: "" },
