@@ -1,5 +1,5 @@
 /* Веб-плеер StoryVeil: фрагмент главы 1 «Интерференции» в рамке телефона.
-   Сценарий и подписи — в story.ru.js / story.en.js (window.STORYVEIL_DEMO), подключаются до этого файла.
+   Сценарий и подписи — в story.en.js (window.STORYVEIL_DEMO), подключаются до этого файла.
    Плеер встраивается в каждый <div data-player></div> на странице. */
 (() => {
   "use strict";

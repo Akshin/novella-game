@@ -1,8 +1,8 @@
 /* Throne Studios — общий скрипт сайта. */
 
 /* ═══ КОНТАКТЫ ════════════════════════════════════════════════════════
-   Единственное место, где хранятся почта и соцсети: шапки, подвалы и страница
-   контактов на обоих языках берут их отсюда. Пустая строка — значит «скоро».
+   Единственное место, где хранятся почта и соцсети: кнопки «Write to us», подвалы и страница
+   About us берут их отсюда. Пустая строка — значит «скоро».
    Пример: email: "hello@thronestudios.com", url: "https://t.me/thronestudios" */
 const SITE_CONTACTS = {
   email: "alo@thronestudios.ink",
@@ -17,7 +17,6 @@ const SITE_CONTACTS = {
 
 (() => {
   "use strict";
-  const en = document.documentElement.lang === "en";
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const $ = (s, root = document) => root.querySelector(s);
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
@@ -29,7 +28,7 @@ const SITE_CONTACTS = {
     discord: '<path fill="currentColor" d="M19.3 5.3A16.6 16.6 0 0 0 15.2 4l-.5 1a15.4 15.4 0 0 0-5.4 0l-.5-1a16.5 16.5 0 0 0-4.1 1.3C2.1 9.2 1.4 13 1.8 16.8a16.7 16.7 0 0 0 5 2.5l1.1-1.7c-.6-.2-1.2-.5-1.8-.9l.4-.3a11.8 11.8 0 0 0 10.1 0l.4.3c-.6.4-1.2.7-1.8.9l1.1 1.7a16.6 16.6 0 0 0 5-2.5c.5-4.4-.8-8.2-2.2-11.5ZM8.5 14.5c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Zm7 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Z"/>',
   };
   const icon = (id) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[id] || ""}</svg>`;
-  const SOON = en ? "Soon" : "Скоро";
+  const SOON = "Soon";
 
   /* ── Почта: адрес вместо заглушки, если он задан ── */
   if (SITE_CONTACTS.email) {
@@ -40,6 +39,8 @@ const SITE_CONTACTS = {
       a.textContent = SITE_CONTACTS.email;
       el.replaceWith(a);
     });
+    /* Кнопки со своим текстом: меняется только ссылка. */
+    $$("[data-mailto]").forEach((a) => { a.href = `mailto:${SITE_CONTACTS.email}`; });
     $$("[data-email-note]").forEach((el) => el.remove());
   }
 
@@ -51,7 +52,7 @@ const SITE_CONTACTS = {
       if (!s.url) return `<li><span class="s">${icon(s.id)}<b>${s.name}</b><small>${SOON}</small></span></li>`;
       const inner = cards ? `${icon(s.id)}<b>${s.name}</b><small>↗</small>` : s.name;
       return `<li><a href="${s.url}" target="_blank" rel="noopener">${inner}</a></li>`;
-    }).join("") || `<li class="muted">${en ? "Coming soon" : "Скоро появятся"}</li>`;
+    }).join("") || `<li class="muted">Coming soon</li>`;
   });
 
   /* ── Шапка: линия при прокрутке и мобильное меню ── */
@@ -70,17 +71,19 @@ const SITE_CONTACTS = {
     addEventListener("keydown", (e) => { if (e.key === "Escape") setOpen(false); });
   }
 
-  /* ── Искры на первом экране: тёплые пылинки медленно поднимаются в свете сцены ── */
+  /* ── Искры на первом экране: тёплые пылинки медленно поднимаются в свете сцены ──
+     На странице StoryVeil (.hero-veil) они розовые, в цвет кнопки внутри игры. */
   const cv = $("#motes");
   if (cv) {
     const host = cv.parentElement;
+    const [hueMin, hueMax] = host.classList.contains("hero-veil") ? [328, 348] : [22, 42];
     const ctx = cv.getContext("2d");
     let W = 0, H = 0, dpr = 1, motes = [];
     const rand = (a, b) => a + Math.random() * (b - a);
     const spawn = (anyY) => ({
       x: rand(0, W), y: anyY ? rand(0, H) : H + rand(0, 40),
       r: rand(0.5, 2.1), vy: rand(6, 22), sway: rand(6, 26), phase: rand(0, Math.PI * 2),
-      speed: rand(0.2, 0.7), hue: rand(22, 42), life: rand(0.35, 1),
+      speed: rand(0.2, 0.7), hue: rand(hueMin, hueMax), life: rand(0.35, 1),
     });
     const size = () => {
       const r = host.getBoundingClientRect();
