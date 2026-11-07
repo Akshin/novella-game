@@ -563,6 +563,20 @@ a.mail:hover { border-color: var(--amber); color: var(--gold); }
 .founder-links a:hover { border-color: var(--amber); color: var(--gold); }
 .founder-links svg { width: 16px; height: 16px; }
 
+/* Команда на главной: лица и одна строка о каждом, подробности — на /about/ */
+.members { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin: 56px 0 0; padding: 0; list-style: none; }
+.member {
+  min-width: 0; display: flex; align-items: center; gap: clamp(20px, 2.6vw, 32px);
+  padding: clamp(22px, 3vw, 36px); border: 1px solid var(--line); border-radius: 22px;
+  background: radial-gradient(90% 70% at 0% 0%, rgba(240,167,91,.09), transparent 60%), var(--hull);
+}
+.member + .member { background: radial-gradient(90% 70% at 0% 0%, rgba(226,112,78,.1), transparent 60%), var(--hull); }
+.member-photo { flex: none; width: clamp(112px, 12vw, 152px); height: auto; aspect-ratio: 1; border-radius: 50%; object-fit: cover; padding: 4px; background: var(--warm); box-shadow: 0 12px 40px -12px rgba(240,167,91,.35); }
+.member h3 { font: 600 clamp(1.3rem, 2vw, 1.6rem)/1.15 var(--display); }
+.member-role { margin: 8px 0 0; font: 600 12px/1.4 var(--label); letter-spacing: .14em; text-transform: uppercase; color: var(--amber); }
+.member-role + p { margin: 14px 0 0; font-size: 15.5px; line-height: 1.55; color: var(--frost); opacity: .88; }
+.team .actions { margin-top: 40px; }
+
 .callout {
   position: relative; margin-top: 56px; padding: clamp(22px, 3vw, 32px) clamp(22px, 3vw, 36px); border-radius: 18px; overflow: hidden;
   border: 1px solid rgba(240,167,91,.3); background: linear-gradient(100deg, rgba(240,167,91,.1), rgba(226,112,78,.04) 60%, transparent), var(--hull);
@@ -632,7 +646,7 @@ a.mail:hover { border-color: var(--amber); color: var(--gold); }
   .hero-grid { grid-template-columns: minmax(0, 1fr); }
   #motes { -webkit-mask-image: radial-gradient(ellipse 100% 50% at 50% 70%, #000 25%, transparent 85%); mask-image: radial-gradient(ellipse 100% 50% at 50% 70%, #000 25%, transparent 85%); }
   .ambient { inset: -8% -18%; }
-  .head-row, .story-intro, .pillars, .founders { grid-template-columns: minmax(0, 1fr); }
+  .head-row, .story-intro, .pillars, .founders, .members { grid-template-columns: minmax(0, 1fr); }
   .game-card { grid-template-columns: minmax(0, 1fr); }
   .app-icon { max-width: 180px; }
   .cast { display: flex; gap: 0; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; }
@@ -667,6 +681,8 @@ a.mail:hover { border-color: var(--amber); color: var(--gold); }
   .ask { grid-template-columns: minmax(0, 1fr); }
   .founder-head { gap: 16px; }
   .founder-photo { width: 76px; height: 76px; }
+  .member { flex-direction: column; align-items: flex-start; }
+  .member-photo { width: 120px; }
   .actions .btn { flex: 1 1 100%; }
   .loc { width: 148px; }
   .store { flex: 1 1 100%; }
